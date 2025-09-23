@@ -1,32 +1,36 @@
 import { type FC } from 'react';
-import type { StickyNote as StickyNoteType } from '../types';
+import type { StickyNoteType } from '../types';
 
 interface Props {
   item: StickyNoteType;
+  startPosition: number;
 }
 
-const StickyNote: FC<Props> = ({ item }) => {
+const StickyNote: FC<Props> = ({ item, startPosition }) => {
   const backgorund = {
-    green: 'bg-green-400',
-    red: 'bg-red-600',
-    blue: 'bg-blue-200',
+    red: 'bg-red-500',
+    orange: 'bg-orange-500',
     yellow: 'bg-yellow-500',
+    green: 'bg-green-500',
+    blue: 'bg-blue-500',
+    indigo: 'bg-indigo-500',
+    purple: 'bg-purple-500',
   };
   return (
     <div
+      style={{
+        width: item.width,
+        height: item.height,
+        zIndex: item.zIndex,
+        position: 'absolute',
+        top: item.positionY,
+        left: item.positionX + startPosition,
+      }}
       className={`${
         backgorund[item.color]
-      } w-[100px] h-[100px] absolute top-[20px] left-[100px] z-[1]`}
-      //   style={{
-      //     background: item.color,
-      //     width: item.width,
-      //     height: item.height,
-      //     position: 'absolute',
-      //     top: item.positionY,
-      //     left: item.positionX,
-      //   }}
+      } cursor-pointer flex items-center rounded-lg `}
     >
-      <p>{item.title}</p>
+      <p className="text-center mx-auto text-2xl">{item.title}</p>
     </div>
   );
 };
