@@ -50,36 +50,10 @@ function App() {
     },
   ]);
   const handleAddStickyNoteClick = () => {
-    // const copy = [...list];
-    // copy.push({
-    //   color: 'red',
-    //   height: 100,
-    //   id: Math.random(),
-    //   positionX: Math.random(),
-    //   positionY: Math.random(),
-    //   title: 'New Note',
-    //   width: 100,
-    //   zIndex: 50,
-    // });
-    // setList(copy);
-
-    const getRandomColor = (): StickyNoteType['color'] => {
-      const colors: StickyNoteType['color'][] = [
-        'red',
-        'orange',
-        'yellow',
-        'green',
-        'blue',
-        'indigo',
-        'purple',
-      ];
-      return colors[Math.floor(Math.random() * colors.length)];
-    };
-
     setList((prev) => [
       ...prev,
       {
-        color: getRandomColor(),
+        color: 'red',
         height: 100,
         width: 100,
         id: Math.random(),
@@ -90,11 +64,21 @@ function App() {
       },
     ]);
   };
-
+  const colors: StickyNoteType['color'][] = [
+    'red',
+    'blue',
+    'green',
+    'yellow',
+    'indigo',
+    'purple',
+    'orange',
+  ];
   return (
     <div className="flex flex-col min-h-screen  relative ">
-      <div className="max-w-32 bg-gray-400 shadow-2xl flex flex-col flex-1 z-50">
-        <Sidebar />
+      <div className="max-w-32 bg-white shadow-2xl flex flex-col flex-1 z-50">
+        <div className="flex gap-4">
+          <Sidebar colors={colors} />
+        </div>
       </div>
       <div>
         {list.map((stickyNote) => {
