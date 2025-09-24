@@ -13,3 +13,9 @@ export interface ListStickyNote {
   StickyNote: StickyNoteType[];
   id: number;
 }
+
+export interface SheetType {
+  id: number;
+  title: string;
+  stickyNotes: StickyNoteType[];
+}
