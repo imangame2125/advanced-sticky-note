@@ -4,9 +4,9 @@ import Sheet from './Sheet';
 
 interface Props {
   sheets: SheetType[];
-  activeSheetId?: number; // شیت فعال
+  activeSheetId?: number;
   onTitleChange: (id: number, value: string) => void;
-  onSelectSheet: (id: number) => void; // وقتی کاربر روی شیت کلیک کرد
+  onSelectSheet: (id: number) => void;
 }
 
 const SheetList: FC<Props> = ({
@@ -27,7 +27,6 @@ const SheetList: FC<Props> = ({
           }`}
           onClick={() => onSelectSheet(sheet.id)}
         >
-          {/* کامپوننت Sheet می‌تونه فقط عنوان رو ویرایش کنه */}
           <Sheet
             sheet={sheet}
             onTitleChange={(value) => onTitleChange(sheet.id, value)}

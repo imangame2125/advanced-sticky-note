@@ -7,10 +7,8 @@ import StickyNote from './components/StickyNote';
 import type { SheetType } from './types';
 
 function App() {
-  // شیت فعال
   const [activeSheetId, setActiveSheetId] = useState<number>(1);
 
-  // آرایه شیت‌ها، هر شیت stickyNoteهای خودش رو داره
   const [sheets, setSheets] = useState<SheetType[]>([
     {
       id: 1,
@@ -40,12 +38,10 @@ function App() {
     },
   ]);
 
-  // تغییر شیت فعال
   const handleSelectSheet = (id: number) => {
     setActiveSheetId(id);
   };
 
-  // افزودن stickyNote به شیت فعال
   const handleAddStickyNoteClick = () => {
     setSheets((prev) =>
       prev.map((sheet) =>
@@ -71,7 +67,6 @@ function App() {
     );
   };
 
-  // افزودن شیت جدید
   const handleAddSheet = () => {
     const newSheet: SheetType = {
       id: Math.random(),
@@ -79,10 +74,9 @@ function App() {
       stickyNotes: [],
     };
     setSheets((prev) => [...prev, newSheet]);
-    setActiveSheetId(newSheet.id); // شیت جدید خودکار فعال می‌شود
+    setActiveSheetId(newSheet.id);
   };
 
-  // تغییر عنوان شیت
   const handleTitleChange = (id: number, value: string) => {
     setSheets((prev) =>
       prev.map((sheet) =>
@@ -91,27 +85,22 @@ function App() {
     );
   };
 
-  // پیدا کردن stickyNoteهای شیت فعال
   const activeSheet = sheets.find((sheet) => sheet.id === activeSheetId);
 
   return (
     <div className="flex flex-col min-h-screen relative">
-      {/* سایدبار */}
       <div className="max-w-32 bg-gray-400 shadow-2xl flex flex-col flex-1 z-50">
         <Sidebar />
       </div>
 
-      {/* نمایش stickyNoteهای شیت فعال */}
       <div>
         {activeSheet?.stickyNotes.map((note) => (
           <StickyNote key={note.id} item={note} startPosition={132} />
         ))}
       </div>
 
-      {/* دکمه افزودن stickyNote */}
       <AddStickyNote AddStickyNote={handleAddStickyNoteClick} />
 
-      {/* لیست شیت‌ها و دکمه افزودن شیت */}
       <div className="p-4 absolute right-0 bottom-0 flex items-center">
         <SheetList
           activeSheetId={1}
