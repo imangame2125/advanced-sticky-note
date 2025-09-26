@@ -1,11 +1,12 @@
 import { type FC } from 'react';
-import type { StickyNote as StickyNoteType } from '../types';
+import type { StickyNoteType } from '../types';
 
 interface Props {
   item: StickyNoteType;
+  startPosition: number;
 }
 
-const StickyNote: FC<Props> = ({ item }) => {
+const StickyNote: FC<Props> = ({ item, startPosition }) => {
   const backgorund = {
     green: 'bg-green-400',
     red: 'bg-red-600',
@@ -14,17 +15,14 @@ const StickyNote: FC<Props> = ({ item }) => {
   };
   return (
     <div
-      className={`${
-        backgorund[item.color]
-      } w-[100px] h-[100px] absolute top-[20px] left-[100px] z-[1]`}
-      //   style={{
-      //     background: item.color,
-      //     width: item.width,
-      //     height: item.height,
-      //     position: 'absolute',
-      //     top: item.positionY,
-      //     left: item.positionX,
-      //   }}
+      className={`${backgorund[item.color]} `}
+      style={{
+        width: item.width,
+        height: item.height,
+        position: 'absolute',
+        top: item.positionY,
+        left: item.positionX + startPosition,
+      }}
     >
       <p>{item.title}</p>
     </div>

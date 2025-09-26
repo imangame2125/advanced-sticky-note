@@ -1,4 +1,4 @@
-export interface StickyNote {
+export interface StickyNoteType {
   width: number;
   height: number;
   positionX: number;
@@ -6,4 +6,10 @@ export interface StickyNote {
   zIndex: number;
   color: 'red' | 'blue' | 'green' | 'yellow';
   title: string;
+  id: number;
+}
+
+export interface StickNoteList {
+  listStickyNote: StickyNoteType[];
+  id: number;
 }
