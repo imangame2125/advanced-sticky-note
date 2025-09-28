@@ -4,7 +4,7 @@ import AddStickyNote from './components/AddStickyNote';
 import SheetList from './components/SheetList';
 import Sidebar from './components/Sidebar';
 import StickyNote from './components/StickyNote';
-import type { SheetType } from './types';
+import type { SheetType, StickyNoteType } from './types';
 
 function App() {
   const [activeSheetId, setActiveSheetId] = useState<number>(1);
@@ -85,17 +85,36 @@ function App() {
     );
   };
 
+  const handleColorClick = (color: StickyNoteType['color']) => {
+    const newSticky: StickyNoteType = {
+      title: 'iman',
+      color,
+      height: 100,
+      id: Math.random(),
+      positionX: 200,
+      positionY: 100,
+      width: 100,
+      zIndex: 1,
+    };
+    const nextState = sheets.map((sheet) =>
+      sheet.id === activeSheetId
+        ? { ...sheet, stickyNotes: [...sheet.stickyNotes, newSticky] }
+        : sheet
+    );
+    setSheets(nextState);
+  };
+
   const activeSheet = sheets.find((sheet) => sheet.id === activeSheetId);
 
   return (
     <div className="flex flex-col min-h-screen relative">
       <div className="max-w-32 bg-gray-400 shadow-2xl flex flex-col flex-1 z-50">
-        <Sidebar />
+        <Sidebar onClick={handleColorClick} />
       </div>
 
       <div>
         {activeSheet?.stickyNotes.map((note) => (
-          <StickyNote key={note.id} item={note} startPosition={132} />
+          <StickyNote key={note.id} item={note} />
         ))}
       </div>
 
@@ -103,7 +122,7 @@ function App() {
 
       <div className="p-4 absolute right-0 bottom-0 flex items-center">
         <SheetList
-          activeSheetId={1}
+          activeSheetId={activeSheetId}
           sheets={sheets}
           onTitleChange={handleTitleChange}
           onSelectSheet={handleSelectSheet}

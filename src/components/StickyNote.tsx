@@ -3,10 +3,10 @@ import type { StickyNoteType } from '../types';
 
 interface Props {
   item: StickyNoteType;
-  startPosition: number;
+  startPosition?: number;
 }
 
-const StickyNote: FC<Props> = ({ item, startPosition }) => {
+const StickyNote: FC<Props> = ({ item, startPosition = 132 }) => {
   const backgorund = {
     red: 'bg-red-500',
     orange: 'bg-orange-500',
