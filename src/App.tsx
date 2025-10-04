@@ -97,9 +97,9 @@ function App() {
 
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (selectedColor) {
-      const x = e.nativeEvent.offsetX;
-      const y = e.nativeEvent.offsetY;
-
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
       const newSticky: StickyNoteType = {
         title: 'iman',
         color: selectedColor,
@@ -129,6 +129,13 @@ function App() {
     });
   }, []);
 
+  const handleDeleteStickyNotesClick = (sheetId: number) => {
+    setSheets((prev) =>
+      prev.map((sheet) =>
+        sheet.id === sheetId ? { ...sheet, stickyNotes: [] } : sheet
+      )
+    );
+  };
   const activeSheet = sheets.find((sheet) => sheet.id === activeSheetId);
 
   return (
@@ -154,6 +161,12 @@ function App() {
             <AddSheetButton onAddSheet={handleAddSheet} />
           </div>
         </div>
+        <button
+          onClick={() => handleDeleteStickyNotesClick(activeSheetId)}
+          className="px-4 py-2 bg-red-800 w-20 h-10 rounded-lg text-white"
+        >
+          Delete
+        </button>
       </div>
     </div>
   );
