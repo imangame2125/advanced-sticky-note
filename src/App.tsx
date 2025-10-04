@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AddSheetButton from './components/AddSheet';
 import AddStickyNote from './components/AddStickyNote';
 import SheetList from './components/SheetList';
@@ -7,8 +7,10 @@ import StickyNote from './components/StickyNote';
 import type { SheetType, StickyNoteType } from './types';
 
 function App() {
+  const [selectedColor, setSelectedColor] = useState<
+    StickyNoteType['color'] | null
+  >(null);
   const [activeSheetId, setActiveSheetId] = useState<number>(1);
-
   const [sheets, setSheets] = useState<SheetType[]>([
     {
       id: 1,
@@ -86,49 +88,71 @@ function App() {
   };
 
   const handleColorClick = (color: StickyNoteType['color']) => {
-    const newSticky: StickyNoteType = {
-      title: 'iman',
-      color,
-      height: 100,
-      id: Math.random(),
-      positionX: 200,
-      positionY: 100,
-      width: 100,
-      zIndex: 1,
-    };
-    const nextState = sheets.map((sheet) =>
-      sheet.id === activeSheetId
-        ? { ...sheet, stickyNotes: [...sheet.stickyNotes, newSticky] }
-        : sheet
-    );
-    setSheets(nextState);
+    if (color === selectedColor) {
+      setSelectedColor(null);
+    } else {
+      setSelectedColor(color);
+    }
   };
+
+  const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (selectedColor) {
+      const x = e.nativeEvent.offsetX;
+      const y = e.nativeEvent.offsetY;
+
+      const newSticky: StickyNoteType = {
+        title: 'iman',
+        color: selectedColor,
+        height: 100,
+        id: Math.random(),
+        positionX: x,
+        positionY: y,
+        width: 100,
+        zIndex: 1,
+      };
+
+      const nextState = sheets.map((sheet) => {
+        if (sheet.id === activeSheetId) {
+          return { ...sheet, stickyNotes: [...sheet.stickyNotes, newSticky] };
+        } else {
+          return sheet;
+        }
+      });
+      setSheets(nextState);
+    }
+  };
+  useEffect(() => {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        setSelectedColor(null);
+      }
+    });
+  }, []);
 
   const activeSheet = sheets.find((sheet) => sheet.id === activeSheetId);
 
   return (
-    <div className="flex flex-col min-h-screen relative">
+    <div className=" flex min-h-screen">
       <div className="max-w-32 bg-gray-400 shadow-2xl flex flex-col flex-1 z-50">
-        <Sidebar onClick={handleColorClick} />
+        <Sidebar selectedColor={selectedColor} onClick={handleColorClick} />
       </div>
-
-      <div>
+      <div onClick={handleContainerClick} className=" relative flex-1">
         {activeSheet?.stickyNotes.map((note) => (
           <StickyNote key={note.id} item={note} />
         ))}
-      </div>
 
-      <AddStickyNote AddStickyNote={handleAddStickyNoteClick} />
+        <AddStickyNote AddStickyNote={handleAddStickyNoteClick} />
 
-      <div className="p-4 absolute right-0 bottom-0 flex items-center">
-        <SheetList
-          activeSheetId={activeSheetId}
-          sheets={sheets}
-          onTitleChange={handleTitleChange}
-          onSelectSheet={handleSelectSheet}
-        />
-        <div className="flex items-center space-x-2">
-          <AddSheetButton onAddSheet={handleAddSheet} />
+        <div className="p-4 absolute right-0 bottom-0 flex items-center">
+          <SheetList
+            activeSheetId={activeSheetId}
+            sheets={sheets}
+            onTitleChange={handleTitleChange}
+            onSelectSheet={handleSelectSheet}
+          />
+          <div className="flex items-center space-x-2">
+            <AddSheetButton onAddSheet={handleAddSheet} />
+          </div>
         </div>
       </div>
     </div>

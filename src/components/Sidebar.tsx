@@ -3,9 +3,9 @@ import type { StickyNoteType } from '../types';
 
 interface Props {
   onClick: (color: StickyNoteType['color']) => void;
+  selectedColor: StickyNoteType['color'] | null;
 }
-const Sidebar: FC<Props> = ({ onClick }) => {
-  //todo: read colors from StickyNoteType
+const Sidebar: FC<Props> = ({ onClick, selectedColor }) => {
   const colors: StickyNoteType['color'][] = [
     'red',
     'blue',
@@ -26,7 +26,9 @@ const Sidebar: FC<Props> = ({ onClick }) => {
             key={color}
             onClick={() => handleClick(color)}
             style={{ background: color }}
-            className="w-10 h-10  m-2 rounded-lg cursor-pointer"
+            className={`w-10 h-10  m-2 rounded-lg cursor-pointer ${
+              color === selectedColor ? 'border-2' : ''
+            }`}
           ></div>
         );
       })}
