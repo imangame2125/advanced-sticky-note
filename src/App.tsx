@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import AddSheetButton from './components/AddSheet';
 import AddStickyNote from './components/AddStickyNote';
+import DeleteStickyNotesButton from './components/DeleteStickyNotesButton';
 import SheetList from './components/SheetList';
 import Sidebar from './components/Sidebar';
 import StickyNote from './components/StickyNote';
@@ -60,7 +61,7 @@ function App() {
                   positionY: 400,
                   zIndex: 1,
                   color: 'red',
-                  title: 'New Note',
+                  title: '',
                 },
               ],
             }
@@ -95,19 +96,49 @@ function App() {
     }
   };
 
+  const handleTitleChangeStickyNote = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    noteId: number
+  ) => {
+    setSheets((prev) =>
+      prev.map((sheet) =>
+        sheet.id !== activeSheetId
+          ? sheet
+          : {
+              ...sheet,
+              stickyNotes: sheet.stickyNotes.map((note) =>
+                note.id === noteId ? { ...note, title: e.target.value } : note
+              ),
+            }
+      )
+    );
+  };
+  const handleStickyNoteClick = () => {
+    setSelectedColor(null);
+  };
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (selectedColor) {
+      const width = 100;
+      const height = 100;
       const rect = e.currentTarget.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const x = e.clientX - rect.left - width / 2;
+      const y = e.clientY - rect.top - height / 2;
+      const maxX = document.body.clientWidth - width / 2;
+      console.log(e.clientX, maxX, document.body.clientWidth);
+
+      if (e.clientX > maxX) {
+        console.log('ture');
+      } else {
+        console.log('false');
+      }
       const newSticky: StickyNoteType = {
-        title: 'iman',
+        title: '',
         color: selectedColor,
-        height: 100,
+        height: height,
         id: Math.random(),
         positionX: x,
         positionY: y,
-        width: 100,
+        width: width,
         zIndex: 1,
       };
 
@@ -129,6 +160,25 @@ function App() {
     });
   }, []);
 
+  const handleRightClickOnStickyNote = (
+    e: React.MouseEvent<HTMLDivElement>,
+    noteId: number
+  ) => {
+    e.preventDefault();
+    setSheets((prev) =>
+      prev.map((sheet) =>
+        sheet.id !== activeSheetId
+          ? sheet
+          : {
+              ...sheet,
+              stickyNotes: sheet.stickyNotes.filter(
+                (note) => note.id !== noteId
+              ),
+            }
+      )
+    );
+  };
+
   const handleDeleteStickyNotesClick = (sheetId: number) => {
     setSheets((prev) =>
       prev.map((sheet) =>
@@ -145,12 +195,18 @@ function App() {
       </div>
       <div onClick={handleContainerClick} className=" relative flex-1">
         {activeSheet?.stickyNotes.map((note) => (
-          <StickyNote key={note.id} item={note} />
+          <StickyNote
+            onContextMenu={handleRightClickOnStickyNote}
+            onStickyNoteClick={handleStickyNoteClick}
+            onTitleChange={handleTitleChangeStickyNote}
+            key={note.id}
+            item={note}
+          />
         ))}
 
         <AddStickyNote AddStickyNote={handleAddStickyNoteClick} />
 
-        <div className="p-4 absolute right-0 bottom-0 flex items-center">
+        <div className="p-4 bg-red-800 absolute right-0 bottom-0 flex items-center">
           <SheetList
             activeSheetId={activeSheetId}
             sheets={sheets}
@@ -161,12 +217,9 @@ function App() {
             <AddSheetButton onAddSheet={handleAddSheet} />
           </div>
         </div>
-        <button
-          onClick={() => handleDeleteStickyNotesClick(activeSheetId)}
-          className="px-4 py-2 bg-red-800 w-20 h-10 rounded-lg text-white"
-        >
-          Delete
-        </button>
+        <DeleteStickyNotesButton
+          onDelete={() => handleDeleteStickyNotesClick(activeSheetId)}
+        />
       </div>
     </div>
   );

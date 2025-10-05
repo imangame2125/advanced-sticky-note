@@ -3,11 +3,33 @@ import type { StickyNoteType } from '../types';
 
 interface Props {
   item: StickyNoteType;
+  onTitleChange: (e: React.ChangeEvent<HTMLInputElement>, id: number) => void;
+  onStickyNoteClick: () => void;
+  onContextMenu: (e: React.MouseEvent<HTMLDivElement>, id: number) => void;
 }
 
-const StickyNote: FC<Props> = ({ item }) => {
+const StickyNote: FC<Props> = ({
+  item,
+  onTitleChange,
+  onStickyNoteClick,
+  onContextMenu,
+}) => {
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onTitleChange(e, item.id);
+  };
+
+  const handleRightClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    onContextMenu(e, item.id);
+  };
+  const handleStickyNoteClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    onStickyNoteClick();
+  };
+
   return (
     <div
+      onContextMenu={handleRightClick}
+      onClick={handleStickyNoteClick}
       style={{
         width: item.width,
         height: item.height,
@@ -19,7 +41,13 @@ const StickyNote: FC<Props> = ({ item }) => {
       }}
       className="cursor-pointer flex items-center rounded-lg"
     >
-      <p className="text-center mx-auto text-2xl">{item.title}</p>
+      <input
+        autoFocus
+        value={item.title}
+        className="w-24 border-none outline-0 text-center mx-auto"
+        onChange={handleTextChange}
+        type="text"
+      />
     </div>
   );
 };
