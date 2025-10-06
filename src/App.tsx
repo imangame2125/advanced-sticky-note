@@ -8,7 +8,7 @@ import StickyNote from './components/StickyNote';
 import type { SheetType, StickyNoteType } from './types';
 
 function App() {
-  const [zIndex, setZindex] = useState<number>(1);
+  // const [zIndex, setZindex] = useState<number>(1);
   const [selectedColor, setSelectedColor] = useState<StickyNoteType['color'] | null>(null);
   const [activeSheetId, setActiveSheetId] = useState<number>(1);
   const [sheets, setSheets] = useState<SheetType[]>([
@@ -22,7 +22,7 @@ function App() {
           height: 120,
           positionX: 50,
           positionY: 100,
-          zIndex: zIndex,
+          zIndex: 2,
           color: 'green',
           title: 'Note 1',
         },
@@ -32,7 +32,7 @@ function App() {
           height: 100,
           positionX: 200,
           positionY: 150,
-          zIndex: zIndex,
+          zIndex: 5,
           color: 'red',
           title: 'Note 2',
         },
@@ -58,7 +58,7 @@ function App() {
                   height: 100,
                   positionX: 200,
                   positionY: 400,
-                  zIndex: zIndex,
+                  zIndex: 1,
                   color: 'red',
                   title: '',
                 },
@@ -109,7 +109,23 @@ function App() {
   };
   const handleStickyNoteClick = (id: number) => {
     setSelectedColor(null);
-    setZindex((prev) => prev + 1);
+    const currentSheet = sheets.find((sheet) => sheet.id === activeSheetId);
+    // for (let i = 0; i < currentSheet!.stickyNotes.length; i++) {
+    //   const element = currentSheet!.stickyNotes[i];
+    //   if (element.zIndex > maxZindex) {
+    //     maxZindex = element.zIndex;
+    //   }
+    // }
+    // currentSheet?.stickyNotes.forEach((note) => {
+    //   if (note.zIndex > maxZindex) {
+    //     maxZindex = note.zIndex;
+    //   }
+    // });
+    // console.log(maxZindex);
+    const zIndexes = currentSheet!.stickyNotes.map((note) => note.zIndex);
+    console.log(Math.max(...zIndexes));
+    const maxZindex = Math.max(...zIndexes);
+
     setSheets((prev) =>
       prev.map((sheet) =>
         sheet.id !== activeSheetId
@@ -117,7 +133,7 @@ function App() {
           : {
               ...sheet,
               stickyNotes: sheet.stickyNotes.map((note) =>
-                note.id === id ? { ...note, zIndex: zIndex + 1 } : note
+                note.id === id ? { ...note, zIndex: maxZindex + 1 } : note
               ),
             }
       )
@@ -128,25 +144,36 @@ function App() {
       const width = 100;
       const height = 100;
       const rect = e.currentTarget.getBoundingClientRect();
-      const x = e.clientX - rect.left - width / 2;
-      const y = e.clientY - rect.top - height / 2;
-      // const maxX = document.body.clientWidth - width / 2;
-      // console.log(e.clientX, maxX, document.body.clientWidth);
+      let x = e.clientX - rect.left - width / 2;
+      let y = e.clientY - rect.top - height / 2;
+      const maxX = document.body.clientWidth - width / 2;
+      const maxY = document.body.clientHeight - height / 2;
+      const minX = rect.left + width / 2;
+      const minY = rect.top + height / 2;
+      if (e.clientX > maxX) {
+        x = x - width / 2;
+      }
+      if (e.clientY > maxY) {
+        y = y - height / 2;
+      }
 
-      // if (e.clientX > maxX) {
-      //   console.log('ture');
-      // }
+      if (e.clientX < minX) {
+        x = x + width / 2;
+      }
+
+      if (e.clientY < minY) {
+        y = y + height / 2;
+      }
       const newSticky: StickyNoteType = {
         title: '',
         color: selectedColor,
         height: height,
         id: Math.random(),
-        positionX: x - width / 2,
+        positionX: x,
         positionY: y,
         width: width,
-        zIndex: zIndex,
+        zIndex: 1,
       };
-
       const nextState = sheets.map((sheet) => {
         if (sheet.id === activeSheetId) {
           return { ...sheet, stickyNotes: [...sheet.stickyNotes, newSticky] };
@@ -194,9 +221,9 @@ function App() {
       <div onClick={handleContainerClick} className=" relative flex-1">
         {activeSheet?.stickyNotes.map((note) => (
           <StickyNote
-            onContextMenu={handleRightClickOnStickyNote}
-            onStickyNoteClick={handleStickyNoteClick}
-            onTitleChange={handleTitleChangeStickyNote}
+            onContextMenu={(e) => handleRightClickOnStickyNote(e, note.id)}
+            onStickyNoteClick={() => handleStickyNoteClick(note.id)}
+            onTitleChange={(e) => handleTitleChangeStickyNote(e, note.id)}
             key={note.id}
             item={note}
           />
