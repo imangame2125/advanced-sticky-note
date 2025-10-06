@@ -8,9 +8,8 @@ import StickyNote from './components/StickyNote';
 import type { SheetType, StickyNoteType } from './types';
 
 function App() {
-  const [selectedColor, setSelectedColor] = useState<
-    StickyNoteType['color'] | null
-  >(null);
+  const [zIndex, setZindex] = useState<number>(1);
+  const [selectedColor, setSelectedColor] = useState<StickyNoteType['color'] | null>(null);
   const [activeSheetId, setActiveSheetId] = useState<number>(1);
   const [sheets, setSheets] = useState<SheetType[]>([
     {
@@ -23,7 +22,7 @@ function App() {
           height: 120,
           positionX: 50,
           positionY: 100,
-          zIndex: 2,
+          zIndex: zIndex,
           color: 'green',
           title: 'Note 1',
         },
@@ -33,7 +32,7 @@ function App() {
           height: 100,
           positionX: 200,
           positionY: 150,
-          zIndex: 3,
+          zIndex: zIndex,
           color: 'red',
           title: 'Note 2',
         },
@@ -59,7 +58,7 @@ function App() {
                   height: 100,
                   positionX: 200,
                   positionY: 400,
-                  zIndex: 1,
+                  zIndex: zIndex,
                   color: 'red',
                   title: '',
                 },
@@ -82,9 +81,7 @@ function App() {
 
   const handleTitleChange = (id: number, value: string) => {
     setSheets((prev) =>
-      prev.map((sheet) =>
-        sheet.id === id ? { ...sheet, title: value } : sheet
-      )
+      prev.map((sheet) => (sheet.id === id ? { ...sheet, title: value } : sheet))
     );
   };
 
@@ -96,10 +93,7 @@ function App() {
     }
   };
 
-  const handleTitleChangeStickyNote = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    noteId: number
-  ) => {
+  const handleTitleChangeStickyNote = (e: React.ChangeEvent<HTMLInputElement>, noteId: number) => {
     setSheets((prev) =>
       prev.map((sheet) =>
         sheet.id !== activeSheetId
@@ -113,8 +107,21 @@ function App() {
       )
     );
   };
-  const handleStickyNoteClick = () => {
+  const handleStickyNoteClick = (id: number) => {
     setSelectedColor(null);
+    setZindex((prev) => prev + 1);
+    setSheets((prev) =>
+      prev.map((sheet) =>
+        sheet.id !== activeSheetId
+          ? sheet
+          : {
+              ...sheet,
+              stickyNotes: sheet.stickyNotes.map((note) =>
+                note.id === id ? { ...note, zIndex: zIndex + 1 } : note
+              ),
+            }
+      )
+    );
   };
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (selectedColor) {
@@ -123,23 +130,21 @@ function App() {
       const rect = e.currentTarget.getBoundingClientRect();
       const x = e.clientX - rect.left - width / 2;
       const y = e.clientY - rect.top - height / 2;
-      const maxX = document.body.clientWidth - width / 2;
-      console.log(e.clientX, maxX, document.body.clientWidth);
+      // const maxX = document.body.clientWidth - width / 2;
+      // console.log(e.clientX, maxX, document.body.clientWidth);
 
-      if (e.clientX > maxX) {
-        console.log('ture');
-      } else {
-        console.log('false');
-      }
+      // if (e.clientX > maxX) {
+      //   console.log('ture');
+      // }
       const newSticky: StickyNoteType = {
         title: '',
         color: selectedColor,
         height: height,
         id: Math.random(),
-        positionX: x,
+        positionX: x - width / 2,
         positionY: y,
         width: width,
-        zIndex: 1,
+        zIndex: zIndex,
       };
 
       const nextState = sheets.map((sheet) => {
@@ -160,10 +165,7 @@ function App() {
     });
   }, []);
 
-  const handleRightClickOnStickyNote = (
-    e: React.MouseEvent<HTMLDivElement>,
-    noteId: number
-  ) => {
+  const handleRightClickOnStickyNote = (e: React.MouseEvent<HTMLDivElement>, noteId: number) => {
     e.preventDefault();
     setSheets((prev) =>
       prev.map((sheet) =>
@@ -171,9 +173,7 @@ function App() {
           ? sheet
           : {
               ...sheet,
-              stickyNotes: sheet.stickyNotes.filter(
-                (note) => note.id !== noteId
-              ),
+              stickyNotes: sheet.stickyNotes.filter((note) => note.id !== noteId),
             }
       )
     );
@@ -181,9 +181,7 @@ function App() {
 
   const handleDeleteStickyNotesClick = (sheetId: number) => {
     setSheets((prev) =>
-      prev.map((sheet) =>
-        sheet.id === sheetId ? { ...sheet, stickyNotes: [] } : sheet
-      )
+      prev.map((sheet) => (sheet.id === sheetId ? { ...sheet, stickyNotes: [] } : sheet))
     );
   };
   const activeSheet = sheets.find((sheet) => sheet.id === activeSheetId);
@@ -206,7 +204,7 @@ function App() {
 
         <AddStickyNote AddStickyNote={handleAddStickyNoteClick} />
 
-        <div className="p-4 bg-red-800 absolute right-0 bottom-0 flex items-center">
+        <div className="p-4 absolute right-0 bottom-0 flex items-center">
           <SheetList
             activeSheetId={activeSheetId}
             sheets={sheets}
@@ -217,9 +215,7 @@ function App() {
             <AddSheetButton onAddSheet={handleAddSheet} />
           </div>
         </div>
-        <DeleteStickyNotesButton
-          onDelete={() => handleDeleteStickyNotesClick(activeSheetId)}
-        />
+        <DeleteStickyNotesButton onDelete={() => handleDeleteStickyNotesClick(activeSheetId)} />
       </div>
     </div>
   );

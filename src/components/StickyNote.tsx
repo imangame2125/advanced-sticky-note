@@ -4,16 +4,11 @@ import type { StickyNoteType } from '../types';
 interface Props {
   item: StickyNoteType;
   onTitleChange: (e: React.ChangeEvent<HTMLInputElement>, id: number) => void;
-  onStickyNoteClick: () => void;
+  onStickyNoteClick: (id: number) => void;
   onContextMenu: (e: React.MouseEvent<HTMLDivElement>, id: number) => void;
 }
 
-const StickyNote: FC<Props> = ({
-  item,
-  onTitleChange,
-  onStickyNoteClick,
-  onContextMenu,
-}) => {
+const StickyNote: FC<Props> = ({ item, onTitleChange, onStickyNoteClick, onContextMenu }) => {
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onTitleChange(e, item.id);
   };
@@ -23,7 +18,7 @@ const StickyNote: FC<Props> = ({
   };
   const handleStickyNoteClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
-    onStickyNoteClick();
+    onStickyNoteClick(item.id);
   };
 
   return (
