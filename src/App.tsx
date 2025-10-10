@@ -4,11 +4,12 @@ import AddStickyNote from './components/AddStickyNote';
 import DeleteStickyNotesButton from './components/DeleteStickyNotesButton';
 import SheetList from './components/SheetList';
 import Sidebar from './components/Sidebar';
-import StickyNote from './components/StickyNote';
+import StickyNote, { type TitleChangeEventArg } from './components/StickyNote';
 import type { SheetType, StickyNoteType } from './types';
 
 function App() {
-  const [activeStickyId, setActiveStickyId] = useState<number | null>(null);
+  const [xX, setXX] = useState<number>(0);
+  const [yY, setYY] = useState<number>(0);
   const [selectedColor, setSelectedColor] = useState<StickyNoteType['color'] | null>(null);
   const [activeSheetId, setActiveSheetId] = useState<number>(1);
   const [sheets, setSheets] = useState<SheetType[]>([
@@ -96,7 +97,7 @@ function App() {
     }
   };
 
-  const handleTitleChangeStickyNote = (e: React.ChangeEvent<HTMLInputElement>, noteId: number) => {
+  const handleTitleChangeStickyNote = (arg: TitleChangeEventArg) => {
     setSheets((prev) =>
       prev.map((sheet) =>
         sheet.id !== activeSheetId
@@ -104,7 +105,7 @@ function App() {
           : {
               ...sheet,
               stickyNotes: sheet.stickyNotes.map((note) =>
-                note.id === noteId ? { ...note, title: e.target.value } : note
+                note.id === arg.noteId ? { ...note, title: arg.text } : note
               ),
             }
       )
@@ -113,18 +114,7 @@ function App() {
   const handleStickyNoteClick = (id: number) => {
     setSelectedColor(null);
     const currentSheet = sheets.find((sheet) => sheet.id === activeSheetId);
-    // for (let i = 0; i < currentSheet!.stickyNotes.length; i++) {
-    //   const element = currentSheet!.stickyNotes[i];
-    //   if (element.zIndex > maxZindex) {
-    //     maxZindex = element.zIndex;
-    //   }
-    // }
-    // currentSheet?.stickyNotes.forEach((note) => {
-    //   if (note.zIndex > maxZindex) {
-    //     maxZindex = note.zIndex;
-    //   }
-    // });
-    // console.log(maxZindex);
+
     const zIndexes = currentSheet!.stickyNotes.map((note) => note.zIndex);
     const maxZindex = Math.max(...zIndexes);
 
@@ -175,7 +165,7 @@ function App() {
         positionY: y,
         width: width,
         zIndex: 1,
-        isDragging: true,
+        isDragging: false,
       };
       const nextState = sheets.map((sheet) => {
         if (sheet.id === activeSheetId) {
@@ -209,8 +199,14 @@ function App() {
     );
   };
 
-  const handleMouseDown = (noteId: number) => {
-    setActiveStickyId(noteId);
+  const handleMouseDown = (noteId: number, e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setXX(e.clientX - rect.left);
+    setYY(e.clientY - rect.top);
+    const currentSheet = sheets.find((sheet) => sheet.id === activeSheetId);
+    const zIndexes = currentSheet!.stickyNotes.map((note) => note.zIndex);
+    const maxZindex = Math.max(...zIndexes);
+
     setSheets((prev) =>
       prev.map((sheet) =>
         sheet.id !== activeSheetId
@@ -218,7 +214,7 @@ function App() {
           : {
               ...sheet,
               stickyNotes: sheet.stickyNotes.map((note) =>
-                note.id === noteId ? { ...note, isDragging: true } : note
+                note.id === noteId ? { ...note, isDragging: true, zIndex: maxZindex + 1 } : note
               ),
             }
       )
@@ -233,15 +229,17 @@ function App() {
           : {
               ...sheet,
               stickyNotes: sheet.stickyNotes.map((note) =>
-                note.id === activeStickyId ? { ...note, isDragging: false } : note
+                note.isDragging ? { ...note, isDragging: false } : note
               ),
             }
       )
     );
-    setActiveStickyId(null);
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left - xX;
+    const y = e.clientY - rect.top - yY;
     setSheets((prev) =>
       prev.map((sheet) =>
         sheet.id !== activeSheetId
@@ -249,11 +247,11 @@ function App() {
           : {
               ...sheet,
               stickyNotes: sheet.stickyNotes.map((note) =>
-                note.id === activeStickyId
+                note.isDragging
                   ? {
                       ...note,
-                      positionX: note.positionX + e.movementX,
-                      positionY: note.positionY + e.movementY,
+                      positionX: x,
+                      positionY: y,
                     }
                   : note
               ),
@@ -268,6 +266,7 @@ function App() {
   };
   const activeSheet = sheets.find((sheet) => sheet.id === activeSheetId);
 
+  // const handleAbbas = (e: React.ChangeEvent<HTMLInputElement>) => {};
   return (
     <div className=" flex min-h-screen">
       <div className="max-w-32 bg-gray-400 shadow-2xl flex flex-col flex-1 z-50">
@@ -280,11 +279,14 @@ function App() {
       >
         {activeSheet?.stickyNotes.map((note) => (
           <StickyNote
-            onMouseUp={handleMouseUp}
-            onMouseDown={() => handleMouseDown(note.id)}
-            onContextMenu={(e) => handleRightClickOnStickyNote(e, note.id)}
-            onStickyNoteClick={() => handleStickyNoteClick(note.id)}
-            onTitleChange={(e) => handleTitleChangeStickyNote(e, note.id)}
+            onMouseUp={() => {
+              console.log('onmouseUp');
+              handleMouseUp();
+            }}
+            onMouseDown={handleMouseDown}
+            onContextMenu={handleRightClickOnStickyNote}
+            onStickyNoteClick={handleStickyNoteClick}
+            onTitleChange={handleTitleChangeStickyNote}
             key={note.id}
             item={note}
           />

@@ -1,12 +1,17 @@
 import { type FC } from 'react';
 import type { StickyNoteType } from '../types';
 
+export interface TitleChangeEventArg {
+  text: string;
+  noteId: number;
+}
+
 interface Props {
   item: StickyNoteType;
-  onTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onStickyNoteClick: () => void;
-  onContextMenu: (e: React.MouseEvent<HTMLDivElement>) => void;
-  onMouseDown: (id: number) => void;
+  onTitleChange: (arg: TitleChangeEventArg) => void;
+  onStickyNoteClick: (id: number) => void;
+  onContextMenu: (e: React.MouseEvent<HTMLDivElement>, id: number) => void;
+  onMouseDown: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
   onMouseUp: () => void;
 }
 
@@ -19,26 +24,23 @@ const StickyNote: FC<Props> = ({
   onMouseUp,
 }) => {
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onTitleChange(e);
+    onTitleChange({ text: e.target.value, noteId: item.id });
   };
 
   const handleRightClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    onContextMenu(e);
+    onContextMenu(e, item.id);
   };
   const handleStickyNoteClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
-    onStickyNoteClick();
+    onStickyNoteClick(item.id);
   };
-  const handleMouseDown = () => {
-    onMouseDown(item.id);
-  };
-  const handleMouseUp = () => {
-    onMouseUp();
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    onMouseDown(item.id, e);
   };
 
   return (
     <div
-      onMouseUp={handleMouseUp}
+      onMouseUp={onMouseUp}
       onMouseDown={handleMouseDown}
       onContextMenu={handleRightClick}
       onClick={handleStickyNoteClick}
