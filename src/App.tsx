@@ -8,7 +8,7 @@ import StickyNote from './components/StickyNote';
 import type { SheetType, StickyNoteType } from './types';
 
 function App() {
-  // const [zIndex, setZindex] = useState<number>(1);
+  const [activeStickyId, setActiveStickyId] = useState<number | null>(null);
   const [selectedColor, setSelectedColor] = useState<StickyNoteType['color'] | null>(null);
   const [activeSheetId, setActiveSheetId] = useState<number>(1);
   const [sheets, setSheets] = useState<SheetType[]>([
@@ -25,6 +25,7 @@ function App() {
           zIndex: 2,
           color: 'green',
           title: 'Note 1',
+          isDragging: false,
         },
         {
           id: 2,
@@ -35,6 +36,7 @@ function App() {
           zIndex: 5,
           color: 'red',
           title: 'Note 2',
+          isDragging: false,
         },
       ],
     },
@@ -61,6 +63,7 @@ function App() {
                   zIndex: 1,
                   color: 'red',
                   title: '',
+                  isDragging: true,
                 },
               ],
             }
@@ -123,7 +126,6 @@ function App() {
     // });
     // console.log(maxZindex);
     const zIndexes = currentSheet!.stickyNotes.map((note) => note.zIndex);
-    console.log(Math.max(...zIndexes));
     const maxZindex = Math.max(...zIndexes);
 
     setSheets((prev) =>
@@ -173,6 +175,7 @@ function App() {
         positionY: y,
         width: width,
         zIndex: 1,
+        isDragging: true,
       };
       const nextState = sheets.map((sheet) => {
         if (sheet.id === activeSheetId) {
@@ -206,6 +209,58 @@ function App() {
     );
   };
 
+  const handleMouseDown = (noteId: number) => {
+    setActiveStickyId(noteId);
+    setSheets((prev) =>
+      prev.map((sheet) =>
+        sheet.id !== activeSheetId
+          ? sheet
+          : {
+              ...sheet,
+              stickyNotes: sheet.stickyNotes.map((note) =>
+                note.id === noteId ? { ...note, isDragging: true } : note
+              ),
+            }
+      )
+    );
+  };
+
+  const handleMouseUp = () => {
+    setSheets((prev) =>
+      prev.map((sheet) =>
+        sheet.id !== activeSheetId
+          ? sheet
+          : {
+              ...sheet,
+              stickyNotes: sheet.stickyNotes.map((note) =>
+                note.id === activeStickyId ? { ...note, isDragging: false } : note
+              ),
+            }
+      )
+    );
+    setActiveStickyId(null);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    setSheets((prev) =>
+      prev.map((sheet) =>
+        sheet.id !== activeSheetId
+          ? sheet
+          : {
+              ...sheet,
+              stickyNotes: sheet.stickyNotes.map((note) =>
+                note.id === activeStickyId
+                  ? {
+                      ...note,
+                      positionX: note.positionX + e.movementX,
+                      positionY: note.positionY + e.movementY,
+                    }
+                  : note
+              ),
+            }
+      )
+    );
+  };
   const handleDeleteStickyNotesClick = (sheetId: number) => {
     setSheets((prev) =>
       prev.map((sheet) => (sheet.id === sheetId ? { ...sheet, stickyNotes: [] } : sheet))
@@ -218,9 +273,15 @@ function App() {
       <div className="max-w-32 bg-gray-400 shadow-2xl flex flex-col flex-1 z-50">
         <Sidebar selectedColor={selectedColor} onClick={handleColorClick} />
       </div>
-      <div onClick={handleContainerClick} className=" relative flex-1">
+      <div
+        onMouseMove={handleMouseMove}
+        onClick={handleContainerClick}
+        className=" relative flex-1"
+      >
         {activeSheet?.stickyNotes.map((note) => (
           <StickyNote
+            onMouseUp={handleMouseUp}
+            onMouseDown={() => handleMouseDown(note.id)}
             onContextMenu={(e) => handleRightClickOnStickyNote(e, note.id)}
             onStickyNoteClick={() => handleStickyNoteClick(note.id)}
             onTitleChange={(e) => handleTitleChangeStickyNote(e, note.id)}

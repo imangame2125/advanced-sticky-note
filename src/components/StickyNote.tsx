@@ -6,9 +6,18 @@ interface Props {
   onTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onStickyNoteClick: () => void;
   onContextMenu: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseDown: (id: number) => void;
+  onMouseUp: () => void;
 }
 
-const StickyNote: FC<Props> = ({ item, onTitleChange, onStickyNoteClick, onContextMenu }) => {
+const StickyNote: FC<Props> = ({
+  item,
+  onTitleChange,
+  onStickyNoteClick,
+  onContextMenu,
+  onMouseDown,
+  onMouseUp,
+}) => {
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onTitleChange(e);
   };
@@ -20,9 +29,17 @@ const StickyNote: FC<Props> = ({ item, onTitleChange, onStickyNoteClick, onConte
     e.stopPropagation();
     onStickyNoteClick();
   };
+  const handleMouseDown = () => {
+    onMouseDown(item.id);
+  };
+  const handleMouseUp = () => {
+    onMouseUp();
+  };
 
   return (
     <div
+      onMouseUp={handleMouseUp}
+      onMouseDown={handleMouseDown}
       onContextMenu={handleRightClick}
       onClick={handleStickyNoteClick}
       style={{

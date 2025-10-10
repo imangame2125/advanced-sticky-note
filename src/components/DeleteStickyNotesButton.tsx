@@ -5,8 +5,6 @@ interface Props {
 }
 const DeleteStickyNotesButton: FC<Props> = ({ onDelete }) => {
   const handleDelete = () => {
-    console.log('asdakd');
-
     onDelete();
   };
   return (

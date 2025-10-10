@@ -7,6 +7,7 @@ export interface StickyNoteType {
   color: 'red' | 'blue' | 'green' | 'yellow' | 'purple' | 'indigo' | 'orange';
   title: string;
   id: number;
+  isDragging: boolean;
 }
 
 export interface SheetType {
