@@ -52,8 +52,9 @@ const StickyNote: FC<Props> = ({
         top: item.positionY,
         left: item.positionX,
         background: item.color,
+        border: item.border,
       }}
-      className="cursor-pointer flex items-center rounded-lg"
+      className="cursor-pointer flex items-center rounded-lg "
     >
       <input
         autoFocus

@@ -8,6 +8,7 @@ export interface StickyNoteType {
   title: string;
   id: number;
   isDragging: boolean;
+  border: string;
 }
 
 export interface SheetType {
