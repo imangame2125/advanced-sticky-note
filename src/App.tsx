@@ -7,6 +7,7 @@ import StickyNote, { type TitleChangeEventArg } from './components/StickyNote';
 import type { SheetType, StickyNoteType } from './types';
 
 function App() {
+  const [isDragging, setIsDragging] = useState<boolean>(false);
   const [xX, setXX] = useState<number>(0);
   const [yY, setYY] = useState<number>(0);
   const [selectedNoteId, setSelectedNoteId] = useState<number | null>(null);
@@ -26,8 +27,6 @@ function App() {
           zIndex: 2,
           color: 'green',
           title: 'Note 1',
-          isDragging: false,
-          border: '',
         },
         {
           id: 2,
@@ -38,8 +37,6 @@ function App() {
           zIndex: 5,
           color: 'red',
           title: 'Note 2',
-          isDragging: false,
-          border: '',
         },
       ],
     },
@@ -101,15 +98,14 @@ function App() {
           ? sheet
           : {
               ...sheet,
-              stickyNotes: sheet.stickyNotes.map((note) => ({
-                ...note,
-                zIndex: note.id === id ? maxZindex + 1 : note.zIndex,
-                border: note.id === selectedNoteId ? '4px dashed white' : 'none',
-              })),
+              stickyNotes: sheet.stickyNotes.map((note) =>
+                note.id === id ? { ...note, zIndex: maxZindex + 1 } : note
+              ),
             }
       )
     );
   };
+  console.log(sheets);
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (selectedColor) {
       const width = 100;
@@ -144,8 +140,6 @@ function App() {
         positionY: y,
         width: width,
         zIndex: 1,
-        isDragging: false,
-        border: '',
       };
       const nextState = sheets.map((sheet) => {
         if (sheet.id === activeSheetId) {
@@ -168,18 +162,33 @@ function App() {
   const handleRightClickOnStickyNote = (e: React.MouseEvent<HTMLDivElement>, noteId: number) => {
     e.preventDefault();
     if (!selectedNoteId) return;
+
+    deleteNote(noteId);
+    // setSheets((prev) =>
+    //   prev.map((sheet) =>
+    //     sheet.id === activeSheetId
+    //       ? {
+    //           ...sheet,
+    //           stickyNotes: sheet.stickyNotes.filter((note) => note.id !== noteId),
+    //         }
+    //       : sheet
+    //   )
+    // );
+    setSelectedNoteId(null);
+  };
+
+  function deleteNote(id: number) {
     setSheets((prev) =>
       prev.map((sheet) =>
         sheet.id === activeSheetId
           ? {
               ...sheet,
-              stickyNotes: sheet.stickyNotes.filter((note) => note.id !== noteId),
+              stickyNotes: sheet.stickyNotes.filter((note) => note.id !== id),
             }
           : sheet
       )
     );
-    setSelectedNoteId(null);
-  };
+  }
 
   const handleMouseDown = (noteId: number, e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -196,32 +205,25 @@ function App() {
           : {
               ...sheet,
               stickyNotes: sheet.stickyNotes.map((note) =>
-                note.id === noteId ? { ...note, isDragging: true, zIndex: maxZindex + 1 } : note
+                note.id === noteId ? { ...note, zIndex: maxZindex + 1 } : note
               ),
             }
       )
     );
+    setSelectedNoteId(noteId);
+    setIsDragging(true);
   };
 
   const handleMouseUp = () => {
-    setSheets((prev) =>
-      prev.map((sheet) =>
-        sheet.id !== activeSheetId
-          ? sheet
-          : {
-              ...sheet,
-              stickyNotes: sheet.stickyNotes.map((note) =>
-                note.isDragging ? { ...note, isDragging: false } : note
-              ),
-            }
-      )
-    );
+    setIsDragging(false);
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left - xX;
     const y = e.clientY - rect.top - yY;
+    if (!isDragging) return;
+
     setSheets((prev) =>
       prev.map((sheet) =>
         sheet.id !== activeSheetId
@@ -229,7 +231,7 @@ function App() {
           : {
               ...sheet,
               stickyNotes: sheet.stickyNotes.map((note) =>
-                note.isDragging
+                selectedNoteId === note.id
                   ? {
                       ...note,
                       positionX: x,
@@ -242,26 +244,12 @@ function App() {
     );
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Delete' && selectedNoteId) {
-        setSheets((prev) =>
-          prev.map((sheet) =>
-            sheet.id !== activeSheetId
-              ? sheet
-              : {
-                  ...sheet,
-                  stickyNotes: sheet.stickyNotes.filter((note) => note.id !== selectedNoteId),
-                }
-          )
-        );
-        setSelectedNoteId(null);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedNoteId, activeSheetId]);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Delete' && selectedNoteId) {
+      deleteNote(selectedNoteId);
+      setSelectedNoteId(null);
+    }
+  };
 
   const handleDeleteStickyNotesClick = (sheetId: number) => {
     setSheets((prev) =>
@@ -282,6 +270,8 @@ function App() {
       >
         {activeSheet?.stickyNotes.map((note) => (
           <StickyNote
+            onKeyDown={handleKeyDown}
+            selected={note.id === selectedNoteId}
             onMouseUp={() => {
               handleMouseUp();
             }}

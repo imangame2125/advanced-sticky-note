@@ -13,6 +13,8 @@ interface Props {
   onContextMenu: (e: React.MouseEvent<HTMLDivElement>, id: number) => void;
   onMouseDown: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
   onMouseUp: () => void;
+  selected: boolean;
+  onKeyDown: (e: React.KeyboardEvent) => void;
 }
 
 const StickyNote: FC<Props> = ({
@@ -20,7 +22,9 @@ const StickyNote: FC<Props> = ({
   onTitleChange,
   onStickyNoteClick,
   onContextMenu,
+  selected,
   onMouseDown,
+  onKeyDown,
   onMouseUp,
 }) => {
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,6 +44,8 @@ const StickyNote: FC<Props> = ({
 
   return (
     <div
+      tabIndex={0}
+      onKeyDown={onKeyDown}
       onMouseUp={onMouseUp}
       onMouseDown={handleMouseDown}
       onContextMenu={handleRightClick}
@@ -52,7 +58,7 @@ const StickyNote: FC<Props> = ({
         top: item.positionY,
         left: item.positionX,
         background: item.color,
-        border: item.border,
+        border: selected ? '4px dashed white' : 'none',
       }}
       className="cursor-pointer flex items-center rounded-lg "
     >
