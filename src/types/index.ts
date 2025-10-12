@@ -29,7 +29,5 @@ export interface SheetType {
 //   color: 'red' | 'blue' | 'green' | 'yellow' | 'purple' | 'indigo' | 'orange';
 //   title: string;
 //   id: number;
-//   isDragging: boolean;
-//   border: string;
 //   sheetId: number;
 // }
