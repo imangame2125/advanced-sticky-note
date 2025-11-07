@@ -8,8 +8,8 @@ import type { SheetType, StickyNoteType } from './types';
 
 function App() {
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [xX, setXX] = useState<number>(0);
-  const [yY, setYY] = useState<number>(0);
+  const [offestX, setOffsetX] = useState<number>(0);
+  const [offsetY, setOffsetY] = useState<number>(0);
   const [selectedNoteId, setSelectedNoteId] = useState<number | null>(null);
   const [selectedColor, setSelectedColor] = useState<StickyNoteType['color'] | null>(null);
   const [activeSheetId, setActiveSheetId] = useState<number>(1);
@@ -164,16 +164,7 @@ function App() {
     if (!selectedNoteId) return;
 
     deleteNote(noteId);
-    // setSheets((prev) =>
-    //   prev.map((sheet) =>
-    //     sheet.id === activeSheetId
-    //       ? {
-    //           ...sheet,
-    //           stickyNotes: sheet.stickyNotes.filter((note) => note.id !== noteId),
-    //         }
-    //       : sheet
-    //   )
-    // );
+
     setSelectedNoteId(null);
   };
 
@@ -192,8 +183,8 @@ function App() {
 
   const handleMouseDown = (noteId: number, e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    setXX(e.clientX - rect.left);
-    setYY(e.clientY - rect.top);
+    setOffsetX(e.clientX - rect.left);
+    setOffsetY(e.clientY - rect.top);
     const currentSheet = sheets.find((sheet) => sheet.id === activeSheetId);
     const zIndexes = currentSheet!.stickyNotes.map((note) => note.zIndex);
     const maxZindex = Math.max(...zIndexes);
@@ -220,8 +211,8 @@ function App() {
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - xX;
-    const y = e.clientY - rect.top - yY;
+    const x = e.clientX - rect.left - offestX;
+    const y = e.clientY - rect.top - offsetY;
     if (!isDragging) return;
 
     setSheets((prev) =>
