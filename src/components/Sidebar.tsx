@@ -9,10 +9,11 @@ const Sidebar: FC<Props> = ({ onClick, selectedColor }) => {
   const colors: StickyNoteType['color'][] = [
     'red',
     'blue',
+    'purple',
     'green',
     'yellow',
-    'purple',
     'indigo',
+    'pink',
     'orange',
   ];
   const handleClick = (color: StickyNoteType['color']) => {

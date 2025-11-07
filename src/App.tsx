@@ -251,7 +251,7 @@ function App() {
 
   return (
     <div className=" flex min-h-screen">
-      <div className="max-w-32 bg-gray-900  backdrop-blur-lg  flex flex-col flex-1 z-50">
+      <div className="max-w-32 bg-indigo-950 backdrop-blur-lg  flex flex-col flex-1 z-50">
         <Sidebar selectedColor={selectedColor} onClick={handleColorClick} />
       </div>
       <div

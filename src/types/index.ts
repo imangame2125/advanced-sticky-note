@@ -4,7 +4,7 @@ export interface StickyNoteType {
   positionX: number;
   positionY: number;
   zIndex: number;
-  color: 'red' | 'blue' | 'green' | 'yellow' | 'purple' | 'indigo' | 'orange';
+  color: 'red' | 'blue' | 'green' | 'yellow' | 'purple' | 'indigo' | 'orange' | 'pink';
   title: string;
   id: number;
 }
@@ -14,4 +14,3 @@ export interface SheetType {
   title: string;
   stickyNotes: StickyNoteType[];
 }
-
