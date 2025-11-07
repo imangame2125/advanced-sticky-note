@@ -65,7 +65,7 @@ const StickyNote: FC<Props> = ({
       <input
         autoFocus
         value={item.title}
-        className="w-24 border-none outline-0 text-center mx-auto"
+        className="w-24 border-none outline-0 text-center mx-auto text-white"
         onChange={handleTextChange}
         type="text"
       />
