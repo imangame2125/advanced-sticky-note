@@ -1,5 +1,5 @@
-import anime from 'animejs';
-import React, { useEffect } from 'react';
+import { motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
 import image1 from '../assets/images/image-1.png';
 import image10 from '../assets/images/image-10.png';
 import image11 from '../assets/images/image-11.png';
@@ -14,6 +14,7 @@ import image6 from '../assets/images/image-6.png';
 import image7 from '../assets/images/image-7.png';
 import image8 from '../assets/images/image-8.png';
 import image9 from '../assets/images/image-9.png';
+
 interface Props {
   onFinish: () => void;
 }
@@ -34,60 +35,76 @@ const CreativeGallery: React.FC<Props> = ({ onFinish }) => {
     image12,
     image13,
   ];
+  const message = `All of this was my idea.
+Of course, I used AI to help generate some images,
+but from start to finish, the concepts and designs were mine.
+I know there is always room to improve,
+but this was a fun and interesting experience for me.`;
+  const lines = [message];
 
-
+  const [showText, setShowText] = useState(false);
 
   useEffect(() => {
-    const frame = document.getElementById('album-frame');
-    if (!frame) return;
-    const rect = frame.getBoundingClientRect();
+    const totalDuration = 3 + images.length * 0.2;
+    const timer = setTimeout(() => setShowText(true), totalDuration * 1000);
+    return () => clearTimeout(timer);
+  }, [images.length]);
 
-    images.forEach((_, index) => {
-      const el = document.getElementById(`photo-${index}`);
-      if (!el) return;
-
-      const targetX = anime.random(rect.left + 450, rect.right - 200);
-      const targetY = anime.random(rect.top + 450, rect.bottom - 200);
-
-      anime({
-        targets: el,
-        scale: [3, 1],
-        translateX: [0, targetX - window.innerWidth / 2],
-        translateY: [0, targetY - window.innerHeight / 2],
-        rotateX: () => anime.random(-45, 45),
-        rotateY: () => anime.random(-45, 45),
-        rotateZ: () => anime.random(-90, 90),
-        opacity: [0, 1],
-        duration: 4000,
-        delay: index * 300,
-        easing: 'easeOutBack',
-      });
-    });
-  }, []);
+  const fanAngles = [-200, -100, -40, -30, 0, 150, 300, 45, 60, 175, 190, 205, 220];
 
   return (
-    <div className="relative w-full h-screen bg-black flex items-center justify-center">
-      <img id="album-frame" src={image15} className="absolute w-full h-auto object-contain" />
+    <div className="relative w-full h-screen bg-black flex items-center justify-center overflow-hidden">
+      <img id="album-frame" src={image15} className="absolute w-full h-full object-cover" />
+
       {images.map((src, i) => (
-        <img
+        <motion.img
           key={i}
-          id={`photo-${i}`}
           src={src}
-          className="absolute w-60 rounded-2xl h-[226px] object-cover "
-          style={{
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%) scale(1)',
+          className="absolute w-40 h-40 rounded-2xl object-cover border-4 border-white"
+          initial={{ scale: 0, opacity: 0, rotate: 0 }}
+          animate={{
+            scale: [0, 2, 1.5],
+            opacity: [0, 1, 1],
+            rotate: [0, fanAngles[i]],
+            x: [0, Math.sin((fanAngles[i] * Math.PI) / 180) * 200],
+            y: [0, -Math.cos((fanAngles[i] * Math.PI) / 180) * 50],
           }}
+          transition={{ duration: 3, delay: i * 0.1, ease: 'easeInOut' }}
         />
       ))}
 
-      <button
-        onClick={onFinish}
-        className="absolute bottom-10 px-8 py-3 bg-white text-black text-xl rounded-full font-bold shadow-lg hover:scale-105 transition"
-      >
-        Continue
-      </button>
+      {showText && (
+        <motion.div
+          initial={{ opacity: 40, y: 20 }}
+          animate={{ opacity: 20, y: 10 }}
+          transition={{ duration: 8 }}
+          className="absolute text-center  space-y-12 font-mono whitespace-pre-line"
+        >
+          {' '}
+          {lines.map((line, i) => (
+            <motion.p
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: [0, 1, 0], y: [28, 0, -20] }}
+              transition={{ duration: 4, delay: i * 1 }}
+              className="text-4xl text-red-900"
+            >
+              {line}
+            </motion.p>
+          ))}{' '}
+        </motion.div>
+      )}
+      {/* دکمه ادامه */}
+      {showText && (
+        <motion.button
+          onClick={onFinish}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          className="absolute bottom-10 px-8 py-3 bg-white text-black text-xl font-bold rounded-full shadow-lg"
+        >
+          Continue
+        </motion.button>
+      )}
     </div>
   );
 };
