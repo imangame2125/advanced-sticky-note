@@ -1,89 +1,90 @@
-import anime from "animejs";
-import { useEffect, useRef } from "react";
-import image1 from "../assets/images/image-1.png";
-import image2 from "../assets/images/image-2.png";
-import image3 from "../assets/images/image-3.png";
-import image4 from "../assets/images/image-4.png";
-
+import anime from 'animejs';
+import React, { useEffect } from 'react';
+import image1 from '../assets/images/image-1.png';
+import image10 from '../assets/images/image-10.png';
+import image11 from '../assets/images/image-11.png';
+import image12 from '../assets/images/image-12.png';
+import image13 from '../assets/images/image-13.png';
+import image15 from '../assets/images/image-15.png';
+import image2 from '../assets/images/image-2.png';
+import image3 from '../assets/images/image-3.png';
+import image4 from '../assets/images/image-4.png';
+import image5 from '../assets/images/image-5.png';
+import image6 from '../assets/images/image-6.png';
+import image7 from '../assets/images/image-7.png';
+import image8 from '../assets/images/image-8.png';
+import image9 from '../assets/images/image-9.png';
 interface Props {
   onFinish: () => void;
 }
 
 const CreativeGallery: React.FC<Props> = ({ onFinish }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const images = [
+    image1,
+    image2,
+    image3,
+    image4,
+    image5,
+    image6,
+    image7,
+    image8,
+    image9,
+    image10,
+    image11,
+    image12,
+    image13,
+  ];
+
+
 
   useEffect(() => {
-    const photos = containerRef.current?.querySelectorAll(".photo");
-    if (!photos) return;
+    const frame = document.getElementById('album-frame');
+    if (!frame) return;
+    const rect = frame.getBoundingClientRect();
 
-    const directions = ["translateX(-150%)", "translateX(150%)", "translateY(-150%)", "translateY(150%)"];
-    const rotations = [-25, 20, -15, 25];
+    images.forEach((_, index) => {
+      const el = document.getElementById(`photo-${index}`);
+      if (!el) return;
 
-    photos.forEach((photo, index) => {
-      (photo as HTMLElement).style.transform = `${directions[index]} rotate(${rotations[index]}deg) scale(0.8)`;
-      (photo as HTMLElement).style.opacity = "0";
-    });
+      const targetX = anime.random(rect.left + 450, rect.right - 200);
+      const targetY = anime.random(rect.top + 450, rect.bottom - 200);
 
-    anime({
-      targets: ".photo",
-      opacity: [0, 1],
-      rotate: [anime.stagger([-25, 15]), 0],
-      translateX: ["0%", "0%"],
-      translateY: ["0%", "0%"],
-      scale: [0.8, 1],
-      easing: "spring(1, 80, 10, 0)",
-      delay: anime.stagger(600),
-      duration: 1200,
-      complete: () => {
-        anime({
-          targets: ".continue-btn",
-          opacity: [0, 1],
-          scale: [0.8, 1],
-          duration: 800,
-          easing: "easeOutBack",
-        });
-      },
+      anime({
+        targets: el,
+        scale: [3, 1],
+        translateX: [0, targetX - window.innerWidth / 2],
+        translateY: [0, targetY - window.innerHeight / 2],
+        rotateX: () => anime.random(-45, 45),
+        rotateY: () => anime.random(-45, 45),
+        rotateZ: () => anime.random(-90, 90),
+        opacity: [0, 1],
+        duration: 4000,
+        delay: index * 300,
+        easing: 'easeOutBack',
+      });
     });
   }, []);
 
-  const handleContinue = () => {
-    anime({
-      targets: ".photo",
-      translateX: () => anime.random(-600, 600),
-      translateY: () => anime.random(-400, 400),
-      rotate: () => anime.random(-30, 30),
-      opacity: [1, 0],
-      scale: [1, 0.5],
-      easing: "easeInBack",
-      duration: 1000,
-      delay: anime.stagger(100),
-      complete: onFinish,
-    });
-  };
-
-  const images = [image1, image2, image3, image4];
-
   return (
-    <div
-      ref={containerRef}
-      className="relative w-full h-screen overflow-hidden bg-black flex items-center justify-center"
-    >
+    <div className="relative w-full h-screen bg-black flex items-center justify-center">
+      <img id="album-frame" src={image15} className="absolute w-full h-auto object-contain" />
       {images.map((src, i) => (
-        <div
+        <img
           key={i}
-          className="photo absolute w-64 h-64 bg-white shadow-2xl rounded-xl border border-gray-300"
+          id={`photo-${i}`}
+          src={src}
+          className="absolute w-60 rounded-2xl h-[226px] object-cover "
           style={{
-            backgroundImage: `url(${src})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            transformOrigin: "center",
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%) scale(1)',
           }}
-        ></div>
+        />
       ))}
 
       <button
-        onClick={handleContinue}
-        className="continue-btn opacity-0 absolute bottom-10 px-8 py-3 bg-white text-black text-xl rounded-full font-bold shadow-lg hover:scale-105 transition"
+        onClick={onFinish}
+        className="absolute bottom-10 px-8 py-3 bg-white text-black text-xl rounded-full font-bold shadow-lg hover:scale-105 transition"
       >
         Continue
       </button>
