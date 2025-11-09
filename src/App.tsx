@@ -24,7 +24,7 @@ export default function App() {
         />
       )}
       {step === 'choice' && (
-        <NoteChoice onPick={() => setStep('final')} colors={['Red', 'Blue', 'Green']} />
+        <NoteChoice onPick={() => setStep('final')} colors={['Red', 'Blue', 'Green','Yellow']} />
       )}
 
         {step === 'final' && (

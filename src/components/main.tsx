@@ -209,10 +209,23 @@ function Main() {
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - offestX;
-    const y = e.clientY - rect.top - offsetY;
     if (!isDragging) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    let x = e.clientX - rect.left - offestX;
+    let y = e.clientY - rect.top - offsetY;
+
+    const currentSheet = sheets.find((sheet) => sheet.id === activeSheetId);
+    const currentNote = currentSheet?.stickyNotes.find((n) => n.id === selectedNoteId);
+    const noteWidth = currentNote?.width ?? 100;
+    const noteHeight = currentNote?.height ?? 100;
+
+    const maxX = rect.width - noteWidth;
+    const maxY = rect.height - noteHeight;
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
+    if (x > maxX) x = maxX;
+    if (y > maxY) y = maxY;
 
     setSheets((prev) =>
       prev.map((sheet) =>
@@ -221,13 +234,7 @@ function Main() {
           : {
               ...sheet,
               stickyNotes: sheet.stickyNotes.map((note) =>
-                selectedNoteId === note.id
-                  ? {
-                      ...note,
-                      positionX: x,
-                      positionY: y,
-                    }
-                  : note
+                selectedNoteId === note.id ? { ...note, positionX: x, positionY: y } : note
               ),
             }
       )
