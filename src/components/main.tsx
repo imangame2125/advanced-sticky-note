@@ -105,7 +105,6 @@ function Main() {
       )
     );
   };
-  console.log(sheets);
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (selectedColor) {
       const width = 100;
