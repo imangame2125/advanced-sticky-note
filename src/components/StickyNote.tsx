@@ -13,6 +13,7 @@ interface Props {
   onContextMenu: (e: React.MouseEvent<HTMLDivElement>, id: number) => void;
   onMouseDown: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
   onMouseUp: () => void;
+  onResizeStart: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
   selected: boolean;
   onKeyDown: (e: React.KeyboardEvent) => void;
 }
@@ -25,6 +26,7 @@ const StickyNote: FC<Props> = ({
   selected,
   onMouseDown,
   onKeyDown,
+  onResizeStart,
   onMouseUp,
 }) => {
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,10 +60,15 @@ const StickyNote: FC<Props> = ({
         top: item.positionY,
         left: item.positionX,
         background: item.color,
-        border: selected ? '4px dashed white' : 'none',
+        border: selected ? '8px solid violet' : ' none',
+        cursor: selected ? 'nw-resize' : 'pointer',
       }}
       className="cursor-pointer flex items-center rounded-lg "
     >
+      <div
+        onMouseDown={(e) => onResizeStart(item.id, e)}
+        className="absolute bottom-1 right-1 w-4 h-4 bg-white cursor-nwse-resize rounded-sm"
+      />
       <input
         autoFocus
         value={item.title}

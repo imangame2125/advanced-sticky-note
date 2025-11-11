@@ -8,6 +8,7 @@ import StickyNote, { type TitleChangeEventArg } from './StickyNote';
 
 function Main() {
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [resizingNoteId, setResizingNoteId] = useState<number | null>(null);
   const [offestX, setOffsetX] = useState<number>(0);
   const [offsetY, setOffsetY] = useState<number>(0);
   const [selectedNoteId, setSelectedNoteId] = useState<number | null>(null);
@@ -200,12 +201,14 @@ function Main() {
             }
       )
     );
+
     setSelectedNoteId(noteId);
     setIsDragging(true);
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    setResizingNoteId(null);
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -218,6 +221,7 @@ function Main() {
     const currentSheet = sheets.find((sheet) => sheet.id === activeSheetId);
     const currentNote = currentSheet?.stickyNotes.find((n) => n.id === selectedNoteId);
     const noteWidth = currentNote?.width ?? 100;
+
     const noteHeight = currentNote?.height ?? 100;
 
     const maxX = rect.width - noteWidth;
@@ -234,7 +238,13 @@ function Main() {
           : {
               ...sheet,
               stickyNotes: sheet.stickyNotes.map((note) =>
-                selectedNoteId === note.id ? { ...note, positionX: x, positionY: y } : note
+                selectedNoteId === note.id
+                  ? {
+                      ...note,
+                      positionX: x,
+                      positionY: y,
+                    }
+                  : note
               ),
             }
       )
@@ -255,6 +265,35 @@ function Main() {
   };
   const activeSheet = sheets.find((sheet) => sheet.id === activeSheetId);
 
+  const handleResizeStart = (noteId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setResizingNoteId(noteId);
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if(!resizingNoteId) return
+      setSheets((prev) =>
+        prev.map((sheet) => ({
+          ...sheet,
+          stickyNotes: sheet.stickyNotes.map((note) => {
+            if (note.id !== noteId) return note;
+            const newWidth = e.clientX - note.positionX;
+            const newHeight = e.clientY - note.positionY;
+            return { ...note, width: newWidth, height: newHeight };
+          }),
+        }))
+      );
+      setSelectedColor(null);
+    };
+
+    const handleMouseUp = () => {
+      setResizingNoteId(null);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
   return (
     <div className=" flex min-h-screen">
       <div className="max-w-32 bg-indigo-950 backdrop-blur-lg  flex flex-col flex-1 z-50">
@@ -267,6 +306,7 @@ function Main() {
       >
         {activeSheet?.stickyNotes.map((note) => (
           <StickyNote
+            onResizeStart={handleResizeStart}
             onKeyDown={handleKeyDown}
             selected={note.id === selectedNoteId}
             onMouseUp={() => {
