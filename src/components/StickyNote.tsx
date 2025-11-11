@@ -61,7 +61,7 @@ const StickyNote: FC<Props> = ({
         left: item.positionX,
         background: item.color,
         border: selected ? '8px solid violet' : ' none',
-        cursor: selected ? 'nw-resize' : 'pointer',
+        cursor: selected ? 'pointer' : 'nw-resize',
       }}
       className="cursor-pointer flex items-center rounded-lg "
     >

@@ -269,20 +269,30 @@ function Main() {
     e.stopPropagation();
     setResizingNoteId(noteId);
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if(!resizingNoteId) return
+    const startX = e.clientX;
+    const startY = e.clientY;
+
+    const currenSheet = sheets.find((sheet) => sheet.id === activeSheetId);
+    const currentNote = currenSheet!.stickyNotes.find((note) => note.id === noteId);
+    const startWidth = currentNote!.width;
+    const startHeight = currentNote!.height;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (resizingNoteId) return;
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+
+      const newWidth = Math.max(60, startWidth + deltaX);
+      const newHeight = Math.max(60, startHeight + deltaY);
+
       setSheets((prev) =>
         prev.map((sheet) => ({
           ...sheet,
-          stickyNotes: sheet.stickyNotes.map((note) => {
-            if (note.id !== noteId) return note;
-            const newWidth = e.clientX - note.positionX;
-            const newHeight = e.clientY - note.positionY;
-            return { ...note, width: newWidth, height: newHeight };
-          }),
+          stickyNotes: sheet.stickyNotes.map((note) =>
+            note.id === noteId ? { ...note, width: newWidth, height: newHeight } : note
+          ),
         }))
       );
-      setSelectedColor(null);
     };
 
     const handleMouseUp = () => {
@@ -294,6 +304,7 @@ function Main() {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
   };
+
   return (
     <div className=" flex min-h-screen">
       <div className="max-w-32 bg-indigo-950 backdrop-blur-lg  flex flex-col flex-1 z-50">
