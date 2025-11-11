@@ -94,7 +94,7 @@ but this was a fun and interesting experience for me.`;
           ))}{' '}
         </motion.div>
       )}
-      {/* دکمه ادامه */}
+   
       {showText && (
         <motion.button
           onClick={onFinish}

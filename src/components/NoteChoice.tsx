@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import type { FC } from 'react';
 
-type Color = 'Green' | 'Yellow' | 'Blue' | 'Red';
+export type Color = 'Green' | 'Yellow' | 'Blue' | 'Red';
 
 interface Props {
   onPick: (color: Color) => void;
