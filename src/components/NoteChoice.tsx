@@ -6,25 +6,31 @@ export type Color = 'Green' | 'Yellow' | 'Blue' | 'Red';
 interface Props {
   onPick: (color: Color) => void;
   colors: Color[];
+  visitedColors: Color[];
 }
 
-const NoteChoice: FC<Props> = ({ onPick }) => {
-  const myColors: Color[] = ['Red', 'Yellow', 'Blue', 'Green'];
+const NoteChoice: FC<Props> = ({ onPick, colors, visitedColors }) => {
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
-      <h2 className="text-2xl mb-8">Which sticky note color do you vibe with?</h2>
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center">
+      <motion.h1
+        initial={{ opacity: 1, scale: 1 }}
+        animate={{ opacity: [0, 1, 0], scale: 2.5 }}
+        transition={{ duration: 2 }}
+        className="text-4xl mb-8 font-extrabold  text-white"
+      >
+        Which sticky note color do you vibe with?
+      </motion.h1>
       <div className="grid grid-cols-2 gap-6">
-        {myColors.map((c) => (
+        {colors.map((color) => (
           <motion.button
-            key={c}
-            onClick={() => onPick(c)}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            className={`w-32 h-32 rounded-lg shadow-lg font-bold`}
-            style={{ background: c }}
-          >
-            {c}
-          </motion.button>
+            key={color}
+            transition={{ duration: 0.8 }}
+            onClick={() => onPick(color)}
+            whileHover={{ scale: 1.1, rotate: 360 }}
+            className={`w-32 h-32 rounded-2xl`}
+            disabled={visitedColors.includes(color)}
+            style={{ background: visitedColors.includes(color) ? 'gray' : color }}
+          ></motion.button>
         ))}
       </div>
     </div>

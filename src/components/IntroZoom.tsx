@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState, type FC } from 'react';
 
-
 type Directions = 'top' | 'bottom' | 'left' | 'right';
 type DirectionColor = 'bg-blue-800' | 'bg-amber-400' | 'bg-red-800' | 'bg-green-800';
 type textImages = '1' | '2' | '3' | '4';
@@ -67,21 +66,6 @@ const IntroZoom: FC<Props> = ({ onContinue, directions, directionColor, textImag
           transition={{ duration: 1 }}
           className="z-10 text-center space-y-6"
         >
-          {/* عکس */}
-          {/* <div className="overflow-hidden flex justify-center mx-auto">
-            {images.map((src, i) => (
-              <motion.img
-                key={i}
-                src={src}
-                className="rounded-2xl w-full max-w-lg object-cover"
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: i * 0.5 }}
-              />
-            ))}
-          </div> */}
-
-          {/* متن سطر به سطر */}
           <div className="relative w-full flex flex-col items-center space-y-4 mt-8">
             {lines.map((line, i) => (
               <motion.p
@@ -96,7 +80,6 @@ const IntroZoom: FC<Props> = ({ onContinue, directions, directionColor, textImag
             ))}
           </div>
 
-          {/* دکمه ادامه */}
           <motion.button
             onClick={onContinue}
             whileHover={{ scale: 1.1 }}
