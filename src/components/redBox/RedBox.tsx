@@ -1,5 +1,5 @@
 import { useRef, type FC } from 'react';
-import { useFollowPointer } from '../utils/useFollowPointer';
+import { useFollowPointer } from '../../utils/useFollowPointer';
 import Boxes, { type BoxProps } from './Boxes';
 
 interface Props {
@@ -59,8 +59,8 @@ const RedBox: FC<Props> = ({ onFinish }) => {
   ];
 
   return (
-    <div className='bg-black w-full h-screen' onClick={onFinish}>
-      <Boxes box={boxes} />
+    <div className='bg-black w-full h-screen' >
+      <Boxes onFinish={onFinish} box={boxes} />
     </div>
   );  
 };

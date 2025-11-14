@@ -16,7 +16,7 @@ interface TrailItem {
 const SimpleGallery: FC<Props> = ({ images, onFinish }) => {
   const words = 'Now you can move mouse and enjoy it.'.split(' ');
 
-  const [counter, setCounter] = useState(5);
+  const [counter, setCounter] = useState(2);
   const [isActive, setIsActive] = useState(false);
   const [trail, setTrail] = useState<TrailItem[]>([]);
 
@@ -49,10 +49,7 @@ const SimpleGallery: FC<Props> = ({ images, onFinish }) => {
   }, [images, isActive]);
 
   return (
-    <div
-      onClick={onFinish}
-      className="flex gap-4 bg-black h-screen w-full justify-center items-center flex-wrap"
-    >
+    <div className="flex gap-4 bg-black  overflow-hidden w-full justify-center items-center ">
       <AnimatePresence>
         {trail.map((item) => (
           <motion.img
@@ -69,27 +66,26 @@ const SimpleGallery: FC<Props> = ({ images, onFinish }) => {
       </AnimatePresence>
 
       {!isActive && (
-        <div className="w-full flex flex-col items-center space-y-4 mt-8">
+        <div className="w-full flex flex-col items-center">
           <AnimatePresence mode="sync">
-            {counter > 0 && (
-              <motion.h1
-                className="text-white"
-                initial={{ opacity: 1, y: 800, scale: 10 }}
-                animate={{ opacity: [1, 1, 1], y: 0, scale: 50 }}
-                exit={{ opacity: 0, y: 50 }}
-                transition={{ duration: 0.5 }}
-              >
-                {counter}
-              </motion.h1>
-            )}
+            {/* <motion.h1
+              className="text-white"
+              initial={{ opacity: 1, y: 800, scale: 5 }}
+              animate={{ opacity: [1, 1, 1], y: 0, scale: 20 }}
+              exit={{ opacity: 0, y: 50 }}
+              transition={{ duration: 0.5 }}
+            >
+              {counter}
+            </motion.h1> */}
 
             {counter === 0 && (
-              <motion.div className="flex gap-30">
+              <motion.div className="flex flex-col m-4 p-4 gap-6">
                 {words.map((word, i) => (
                   <motion.h1
+                    
                     key={i}
                     initial={{ opacity: 1, y: 800, scale: 10 }}
-                    animate={{ opacity: [1, 1, 1], y: 0, scale: 2 }}
+                    animate={{ opacity: [0, 1, 1], y: 40, scale: 2 }}
                     exit={{ opacity: 0, y: 50 }}
                     transition={{
                       duration: 1,
@@ -97,7 +93,7 @@ const SimpleGallery: FC<Props> = ({ images, onFinish }) => {
                       ease: 'easeIn',
                       times: [0.8, 0.8, 1],
                     }}
-                    className="text-green-400 font-Clash text-3xl font-extrabold"
+                    className="text-green-400 font-Clash text-2xl font-extrabold"
                     onAnimationComplete={() => {
                       if (word === 'it.') setIsActive(true);
                     }}
@@ -110,6 +106,9 @@ const SimpleGallery: FC<Props> = ({ images, onFinish }) => {
           </AnimatePresence>
         </div>
       )}
+      <motion.button className="bg-green-600 px-6 fixed left-0 mt-14 py-2 rounded-xl" onClick={onFinish}>
+        continue
+      </motion.button>
     </div>
   );
 };

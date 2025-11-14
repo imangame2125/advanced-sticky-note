@@ -14,15 +14,15 @@ const StyleSheet: React.FC = () => {
         background: black;
       }
       .img-container > div {
-        width: 800px;
-        height: 700px;
+        width: 500px;
+        height: 500px;
         margin: 20px;
         background: #111;
         overflow: hidden;
       }
       .img-container img {
-        width: 800px;
-        height: 700px;
+        width: 500px;
+        height: 500px;
         object-fit: cover;
       }
       .img-container h2 {
@@ -31,7 +31,8 @@ const StyleSheet: React.FC = () => {
         font-size: 250px;
         font-weight: 700;
         position: absolute;
-        top: calc(28% - 25px);
+        top: calc(32% - 25px);
+        right:calc(74%)
       }
       .progress {
         position: fixed;
