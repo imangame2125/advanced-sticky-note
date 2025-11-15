@@ -12,10 +12,13 @@ interface Props {
   onStickyNoteClick: (id: number) => void;
   onContextMenu: (e: React.MouseEvent<HTMLDivElement>, id: number) => void;
   onMouseDown: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
-  onMouseUp: () => void;
-  onResizeStart: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseUp?: () => void;
   selected: boolean;
   onKeyDown: (e: React.KeyboardEvent) => void;
+  onTopBorderMouseDown: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
+  onBottomBorderMouseDown: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
+  onLeftBorderMouseDown: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
+  onRightBorderMouseDown: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 const StickyNote: FC<Props> = ({
@@ -26,8 +29,9 @@ const StickyNote: FC<Props> = ({
   selected,
   onMouseDown,
   onKeyDown,
-  onResizeStart,
   onMouseUp,
+  onBottomBorderMouseDown,
+  onTopBorderMouseDown,
 }) => {
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onTitleChange({ text: e.target.value, noteId: item.id });
@@ -41,7 +45,23 @@ const StickyNote: FC<Props> = ({
     onStickyNoteClick(item.id);
   };
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
     onMouseDown(item.id, e);
+  };
+
+  const handleBorderTopMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    onTopBorderMouseDown(item.id, e);
+  };
+
+  const handleBorderBottomMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    onBottomBorderMouseDown(item.id, e);
+  };
+
+  const handleBorderLeftMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    onBottomBorderMouseDown(item.id, e);
   };
 
   return (
@@ -60,15 +80,26 @@ const StickyNote: FC<Props> = ({
         top: item.positionY,
         left: item.positionX,
         background: item.color,
-        border: selected ? '8px solid violet' : ' none',
-        cursor: selected ? 'pointer' : 'nw-resize',
       }}
-      className="cursor-pointer flex items-center rounded-lg "
+      className="flex items-center rounded-lg "
     >
-      <div
-        onMouseDown={(e) => onResizeStart(item.id, e)}
-        className="absolute bottom-1 right-1 w-4 h-4 bg-white cursor-nwse-resize rounded-sm"
-      />
+      {selected && (
+        <>
+          <div
+            className="absolute cursor-ns-resize top-0 h-2 w-full bg-gray-500"
+            onMouseDown={handleBorderTopMouseDown}
+          />
+          <div
+            onMouseDown={handleBorderLeftMouseDown}
+            className="absolute cursor-ns-resize bottom-0 h-2 w-full bg-gray-500"
+          />
+          <div className="absolute cursor-ew-resize left-0 h-full w-2 bg-gray-500" />
+          <div
+            onMouseDown={handleBorderBottomMouseDown}
+            className="absolute cursor-ew-resize right-0 h-full w-2 bg-gray-500"
+          />
+        </>
+      )}
       <input
         autoFocus
         value={item.title}

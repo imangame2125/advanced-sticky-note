@@ -7,8 +7,8 @@ import Sidebar from './Sidebar';
 import StickyNote, { type TitleChangeEventArg } from './StickyNote';
 
 function Main() {
+  const [isResizing, setIsResizing] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [resizingNoteId, setResizingNoteId] = useState<number | null>(null);
   const [offestX, setOffsetX] = useState<number>(0);
   const [offsetY, setOffsetY] = useState<number>(0);
   const [selectedNoteId, setSelectedNoteId] = useState<number | null>(null);
@@ -85,6 +85,7 @@ function Main() {
       )
     );
   };
+
   const handleStickyNoteClick = (id: number) => {
     setSelectedColor(null);
     setSelectedNoteId(id);
@@ -106,6 +107,7 @@ function Main() {
       )
     );
   };
+
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (selectedColor) {
       const width = 100;
@@ -149,15 +151,10 @@ function Main() {
         }
       });
       setSheets(nextState);
+      setSelectedNoteId(newSticky.id);
+      setSelectedColor(null);
     }
   };
-  useEffect(() => {
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        setSelectedColor(null);
-      }
-    });
-  }, []);
 
   const handleRightClickOnStickyNote = (e: React.MouseEvent<HTMLDivElement>, noteId: number) => {
     e.preventDefault();
@@ -206,12 +203,8 @@ function Main() {
     setIsDragging(true);
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setResizingNoteId(null);
-  };
-
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isResizing) return;
     if (!isDragging) return;
 
     const rect = e.currentTarget.getBoundingClientRect();
@@ -263,47 +256,88 @@ function Main() {
       prev.map((sheet) => (sheet.id === sheetId ? { ...sheet, stickyNotes: [] } : sheet))
     );
   };
-  const activeSheet = sheets.find((sheet) => sheet.id === activeSheetId);
 
-  const handleResizeStart = (noteId: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setResizingNoteId(noteId);
-
-    const startX = e.clientX;
-    const startY = e.clientY;
-
-    const currenSheet = sheets.find((sheet) => sheet.id === activeSheetId);
-    const currentNote = currenSheet!.stickyNotes.find((note) => note.id === noteId);
-    const startWidth = currentNote!.width;
-    const startHeight = currentNote!.height;
-
-    const handleMouseMove = (moveEvent: MouseEvent) => {
-      if (resizingNoteId) return;
-      const deltaX = moveEvent.clientX - startX;
-      const deltaY = moveEvent.clientY - startY;
-
-      const newWidth = Math.max(60, startWidth + deltaX);
-      const newHeight = Math.max(60, startHeight + deltaY);
-
-      setSheets((prev) =>
-        prev.map((sheet) => ({
-          ...sheet,
-          stickyNotes: sheet.stickyNotes.map((note) =>
-            note.id === noteId ? { ...note, width: newWidth, height: newHeight } : note
-          ),
-        }))
-      );
-    };
-
-    const handleMouseUp = () => {
-      setResizingNoteId(null);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+  const handleStickyTopBorderMouseDown = (id: number) => {
+    setIsResizing(true);
+    setIsDragging(false);
+    setSelectedNoteId(id);
   };
+
+  const handleStickyBottomBorderMouseDown = (id: number) => {
+    setIsResizing(true);
+    setIsDragging(false);
+    setSelectedNoteId(id);
+  };
+  const handleStickyRightBorderMouseDown = (id: number) => {
+    setIsResizing(true);
+    setIsDragging(false);
+    setSelectedNoteId(id);
+  };
+
+  const handleStickyLeftBorderMouseDown = (id: number) => {
+    setIsResizing(true);
+    setIsDragging(false);
+    setSelectedNoteId(id);
+  };
+
+  useEffect(() => {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        setSelectedColor(null);
+      }
+    });
+
+    function onMouseUp() {
+      setIsResizing(false);
+      setIsDragging(false);
+    }
+
+    function onMouseMove(e: MouseEvent) {
+      if (isDragging) return;
+      if (!isResizing) return;
+      const activeSheet = sheets.find((sheet) => sheet.id === activeSheetId);
+      const selectedStickyNote = activeSheet!.stickyNotes.find(
+        (stickyNote) => stickyNote.id === selectedNoteId
+      );
+      const deltaTop = selectedStickyNote!.positionY - e.clientY;
+      const newHeight = selectedStickyNote!.height + deltaTop;
+      const newPositionY = selectedStickyNote!.positionY - deltaTop;
+     
+
+      const newSheets = sheets.map((sheet) => {
+        if (sheet.id !== activeSheetId) {
+          return sheet;
+        } else {
+          return {
+            ...sheet,
+            stickyNotes: sheet.stickyNotes.map((note) => {
+              if (note.id !== selectedNoteId) {
+                return note;
+              } else {
+                return {
+                  ...note,
+                  height: newHeight,
+                  positionY: newPositionY,
+                };
+              }
+            }),
+          };
+        }
+      });
+
+      setSheets(newSheets);
+    }
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+
+    return () => {
+      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('mousemove', onMouseMove);
+    };
+  }, [isResizing]);
+
+  const activeSheet = sheets.find((sheet) => sheet.id === activeSheetId);
 
   return (
     <div className=" flex min-h-screen">
@@ -317,12 +351,12 @@ function Main() {
       >
         {activeSheet?.stickyNotes.map((note) => (
           <StickyNote
-            onResizeStart={handleResizeStart}
+            onLeftBorderMouseDown={handleStickyLeftBorderMouseDown}
+            onRightBorderMouseDown={handleStickyRightBorderMouseDown}
+            onBottomBorderMouseDown={handleStickyBottomBorderMouseDown}
+            onTopBorderMouseDown={handleStickyTopBorderMouseDown}
             onKeyDown={handleKeyDown}
             selected={note.id === selectedNoteId}
-            onMouseUp={() => {
-              handleMouseUp();
-            }}
             onMouseDown={handleMouseDown}
             onContextMenu={handleRightClickOnStickyNote}
             onStickyNoteClick={handleStickyNoteClick}
