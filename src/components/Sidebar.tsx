@@ -21,15 +21,15 @@ const Sidebar: FC<Props> = ({ onClick, selectedColor }) => {
   };
 
   return (
-    <div className="grid grid-cols-2 ">
+    <div className="grid grid-cols-2  from-violet-200 to-pink-200">
       {colors.map((color) => {
         return (
           <div
             key={color}
             onClick={() => handleClick(color)}
             style={{ background: color }}
-            className={`w-10 h-10  m-2 rounded-lg cursor-pointer ${
-              color === selectedColor ? 'border-2 border-amber-50' : ''
+            className={`w-10 h-10  m-2 rounded-lg cursor-pointer border-2 border-black${
+              color === selectedColor ? 'border-4 border-gray-50' : ''
             }`}
           ></div>
         );

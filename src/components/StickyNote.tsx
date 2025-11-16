@@ -106,34 +106,34 @@ const StickyNote: FC<Props> = ({
       {selected && (
         <>
           <div
-            className="absolute cursor-ns-resize top-0 h-2 w-full bg-gray-500"
+            className="absolute cursor-ns-resize top-0 h-2 w-full bg-linear-to-r from-teal-400 to-yellow-200"
             onMouseDown={handleBorderTopMouseDown}
           />
 
           <div
             onMouseDown={handleBorderBottomMouseDown}
-            className="absolute cursor-ns-resize bottom-0 h-2 w-full bg-gray-500"
+            className="absolute cursor-ns-resize bottom-0 h-2 w-full bg-linear-to-r from-teal-400 to-yellow-200"
           />
           <div
             onMouseDown={handleBorderLeftMouseDown}
-            className="absolute cursor-ew-resize left-0 h-full w-2 bg-gray-500"
+            className="absolute cursor-ew-resize left-0 h-full w-2 bg-linear-to-r from-teal-400 to-yellow-200"
           />
           <div
             onMouseDown={handleRightBorderMouseDown}
-            className="absolute cursor-ew-resize right-0 h-full w-2 bg-gray-500"
+            className="absolute cursor-ew-resize right-0 h-full w-2 bg-linear-to-r from-teal-400 to-yellow-200"
           />
 
           <div
             onMouseDown={handleLeftTopCornerMouseDown}
-            className="absolute cursor-nw-resize left-0 top-0 w-2 h-2 z-50 bg-yellow-500"
+            className="absolute cursor-nw-resize left-0 top-0 w-2 h-2 z-50 bg-linear-to-r from-pink-500 to-rose-500"
           />
 
           <div
             onMouseDown={handleRightTopCornerMouseDown}
-            className="absolute cursor-ne-resize right-0 top-0 w-2 h-2 z-50 bg-yellow-500"
+            className="absolute cursor-ne-resize right-0 top-0 w-2 h-2 z-50 bg-linear-to-r from-pink-500 to-rose-500"
           />
-          <div className="absolute cursor-sw-resize bottom-0  w-2 h-2 z-50 bg-yellow-500" />
-          <div className="absolute cursor-se-resize right-0 bottom-0  w-2 h-2 z-50 bg-yellow-500" />
+          <div className="absolute cursor-sw-resize bottom-0  w-2 h-2 z-50 bg-linear-to-r from-pink-500 to-rose-500" />
+          <div className="absolute cursor-se-resize right-0 bottom-0  w-2 h-2 z-50 bg-linear-to-r from-pink-500 to-rose-500" />
         </>
       )}
       {selected ? (

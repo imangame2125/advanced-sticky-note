@@ -25,8 +25,8 @@ function Main() {
       stickyNotes: [
         {
           id: 1,
-          width: 120,
-          height: 120,
+          width: 100,
+          height: 100,
           positionX: 50,
           positionY: 100,
           zIndex: 2,
@@ -509,8 +509,8 @@ function Main() {
   const activeSheet = sheets.find((sheet) => sheet.id === activeSheetId);
 
   return (
-    <div className=" flex min-h-screen">
-      <div className="max-w-32 bg-indigo-950 backdrop-blur-lg  flex flex-col flex-1 z-50">
+    <div className=" flex min-h-screen bg-linear-to-r from-slate-900 to-slate-700">
+      <div className="max-w-32 bg-linear-to-r from-violet-200 to-pink-200 flex flex-col flex-1 z-50">
         <Sidebar selectedColor={selectedColor} onClick={handleColorClick} />
       </div>
       <div

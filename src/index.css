@@ -1,10 +1,6 @@
 @import 'tailwindcss';
-@font-face {
-  font-family: Clash;
-  src: url('./assets/fonts/Clash\ Grotesk\ Extralight.otf');
-}
+
 
 body {
   font-family: Clash;
-  background: black;
 }
