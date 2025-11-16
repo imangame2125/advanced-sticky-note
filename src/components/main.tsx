@@ -302,7 +302,9 @@ function Main() {
       const deltaTop = selectedStickyNote!.positionY - e.clientY;
       const newHeight = selectedStickyNote!.height + deltaTop;
       const newPositionY = selectedStickyNote!.positionY - deltaTop;
-     
+
+      const deltaRight = e.clientX - selectedStickyNote!.positionX;
+      const newWidth = selectedStickyNote!.width + deltaRight;
 
       const newSheets = sheets.map((sheet) => {
         if (sheet.id !== activeSheetId) {
@@ -316,6 +318,8 @@ function Main() {
               } else {
                 return {
                   ...note,
+                  width: newWidth,
+                  positionX: note.positionX,
                   height: newHeight,
                   positionY: newPositionY,
                 };

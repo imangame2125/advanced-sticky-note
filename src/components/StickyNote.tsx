@@ -45,7 +45,7 @@ const StickyNote: FC<Props> = ({
     onStickyNoteClick(item.id);
   };
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault();
+    e.stopPropagation();
     onMouseDown(item.id, e);
   };
 
@@ -100,13 +100,15 @@ const StickyNote: FC<Props> = ({
           />
         </>
       )}
-      <input
-        autoFocus
-        value={item.title}
-        className="w-24 border-none outline-0 text-center mx-auto text-white"
-        onChange={handleTextChange}
-        type="text"
-      />
+      {selected && (
+        <input
+          autoFocus
+          value={item.title}
+          className="w-24 border-none outline-0 text-center mx-auto text-white"
+          onChange={handleTextChange}
+          type="text"
+        />
+      )}
     </div>
   );
 };
