@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { SheetType, StickyNoteType } from '../types';
 import AddSheetButton from './AddSheet';
 import DeleteStickyNotesButton from './DeleteStickyNotesButton';
@@ -7,7 +7,11 @@ import Sidebar from './Sidebar';
 import StickyNote, { type TitleChangeEventArg } from './StickyNote';
 
 function Main() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isResizing, setIsResizing] = useState<boolean>(false);
+  const [resizeDirections, setResizeDirections] = useState<
+    'top' | 'left' | 'bottom' | 'right' | 'topLeft' | 'topRight' | null
+  >(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [offestX, setOffsetX] = useState<number>(0);
   const [offsetY, setOffsetY] = useState<number>(0);
@@ -258,26 +262,43 @@ function Main() {
   };
 
   const handleStickyTopBorderMouseDown = (id: number) => {
+    setResizeDirections('top');
+
     setIsResizing(true);
     setIsDragging(false);
     setSelectedNoteId(id);
   };
 
   const handleStickyBottomBorderMouseDown = (id: number) => {
+    setResizeDirections('bottom');
     setIsResizing(true);
     setIsDragging(false);
     setSelectedNoteId(id);
   };
   const handleStickyRightBorderMouseDown = (id: number) => {
+    setResizeDirections('right');
     setIsResizing(true);
     setIsDragging(false);
     setSelectedNoteId(id);
   };
 
   const handleStickyLeftBorderMouseDown = (id: number) => {
+    setResizeDirections('left');
     setIsResizing(true);
     setIsDragging(false);
     setSelectedNoteId(id);
+  };
+
+  const handleLeftTopCornerMouseDown = (id: number) => {
+    setIsResizing(true);
+    setSelectedNoteId(id);
+    setResizeDirections('topLeft');
+  };
+
+  const handleRightTopCornerMouseDown = (id: number) => {
+    setIsResizing(true);
+    setSelectedNoteId(id);
+    setResizeDirections('topRight');
   };
 
   useEffect(() => {
@@ -299,37 +320,181 @@ function Main() {
       const selectedStickyNote = activeSheet!.stickyNotes.find(
         (stickyNote) => stickyNote.id === selectedNoteId
       );
-      const deltaTop = selectedStickyNote!.positionY - e.clientY;
-      const newHeight = selectedStickyNote!.height + deltaTop;
-      const newPositionY = selectedStickyNote!.positionY - deltaTop;
+      if (resizeDirections === 'top') {
+        const deltaTop = selectedStickyNote!.positionY - e.clientY;
+        const newHeight = selectedStickyNote!.height + deltaTop;
+        const newPositionY = selectedStickyNote!.positionY - deltaTop;
 
-      const deltaRight = e.clientX - selectedStickyNote!.positionX;
-      const newWidth = selectedStickyNote!.width + deltaRight;
+        const newSheets = sheets.map((sheet) => {
+          if (sheet.id !== activeSheetId) {
+            return sheet;
+          } else {
+            return {
+              ...sheet,
+              stickyNotes: sheet.stickyNotes.map((note) => {
+                if (note.id !== selectedNoteId) {
+                  return note;
+                } else {
+                  return {
+                    ...note,
+                    height: newHeight,
+                    positionY: newPositionY,
+                  };
+                }
+              }),
+            };
+          }
+        });
 
-      const newSheets = sheets.map((sheet) => {
-        if (sheet.id !== activeSheetId) {
-          return sheet;
-        } else {
-          return {
-            ...sheet,
-            stickyNotes: sheet.stickyNotes.map((note) => {
-              if (note.id !== selectedNoteId) {
-                return note;
-              } else {
-                return {
-                  ...note,
-                  width: newWidth,
-                  positionX: note.positionX,
-                  height: newHeight,
-                  positionY: newPositionY,
-                };
-              }
-            }),
-          };
-        }
-      });
+        setSheets(newSheets);
+      } else if (resizeDirections === 'right') {
+        const a = selectedStickyNote!.width + selectedStickyNote!.positionX;
+        const rect = containerRef!.current!.getBoundingClientRect();
+        const b = e.clientX - rect.left;
+        const deltaRight = b - a;
 
-      setSheets(newSheets);
+        const newWidth = selectedStickyNote!.width + deltaRight;
+
+        const newSheets = sheets.map((sheet) => {
+          if (sheet.id !== activeSheetId) {
+            return sheet;
+          } else {
+            return {
+              ...sheet,
+              stickyNotes: sheet.stickyNotes.map((note) => {
+                if (note.id !== selectedNoteId) {
+                  return note;
+                } else {
+                  return {
+                    ...note,
+                    width: newWidth,
+                  };
+                }
+              }),
+            };
+          }
+        });
+
+        setSheets(newSheets);
+      } else if (resizeDirections === 'bottom') {
+        const deltaBottom =
+          e.clientY - (selectedStickyNote!.positionY + selectedStickyNote!.height);
+        const newHeight = selectedStickyNote!.height + deltaBottom;
+        const newSheets = sheets.map((sheet) => {
+          if (sheet.id !== activeSheetId) {
+            return sheet;
+          } else {
+            return {
+              ...sheet,
+              stickyNotes: sheet.stickyNotes.map((note) => {
+                if (note.id !== selectedNoteId) {
+                  return note;
+                } else {
+                  return {
+                    ...note,
+                    height: newHeight,
+                  };
+                }
+              }),
+            };
+          }
+        });
+
+        setSheets(newSheets);
+      } else if (resizeDirections === 'left') {
+        const rect = containerRef!.current!.getBoundingClientRect();
+        const newPostionX = e.clientX - rect.left;
+        const newWidth = selectedStickyNote!.positionX - newPostionX + selectedStickyNote!.width;
+
+        const newSheets = sheets.map((sheet) => {
+          if (sheet.id !== activeSheetId) {
+            return sheet;
+          } else {
+            return {
+              ...sheet,
+              stickyNotes: sheet.stickyNotes.map((note) => {
+                if (note.id !== selectedNoteId) {
+                  return note;
+                } else {
+                  return {
+                    ...note,
+                    width: newWidth,
+                    positionX: newPostionX,
+                  };
+                }
+              }),
+            };
+          }
+        });
+
+        setSheets(newSheets);
+      } else if (resizeDirections === 'topLeft') {
+        const rect = containerRef!.current!.getBoundingClientRect();
+        const newPostionX = e.clientX - rect.left;
+        const newWidth = selectedStickyNote!.positionX - newPostionX + selectedStickyNote!.width;
+        const deltaTop = selectedStickyNote!.positionY - e.clientY;
+        const newHeight = selectedStickyNote!.height + deltaTop;
+        const newPositionY = selectedStickyNote!.positionY - deltaTop;
+        const newSheets = sheets.map((sheet) => {
+          if (sheet.id !== activeSheetId) {
+            return sheet;
+          } else {
+            return {
+              ...sheet,
+              stickyNotes: sheet.stickyNotes.map((note) => {
+                if (note.id !== selectedNoteId) {
+                  return note;
+                } else {
+                  return {
+                    ...note,
+                    height: newHeight,
+                    positionY: newPositionY,
+                    width: newWidth,
+                    positionX: newPostionX,
+                  };
+                }
+              }),
+            };
+          }
+        });
+
+        setSheets(newSheets);
+      } else if (resizeDirections === 'topRight') {
+        const deltaTop = selectedStickyNote!.positionY - e.clientY;
+        const newHeight = selectedStickyNote!.height + deltaTop;
+        const newPositionY = selectedStickyNote!.positionY - deltaTop;
+
+        const a = selectedStickyNote!.width + selectedStickyNote!.positionX;
+        const rect = containerRef!.current!.getBoundingClientRect();
+        const b = e.clientX - rect.left;
+        const deltaRight = b - a;
+
+        const newWidth = selectedStickyNote!.width + deltaRight;
+
+        const newSheets = sheets.map((sheet) => {
+          if (sheet.id !== activeSheetId) {
+            return sheet;
+          } else {
+            return {
+              ...sheet,
+              stickyNotes: sheet.stickyNotes.map((note) => {
+                if (note.id !== selectedNoteId) {
+                  return note;
+                } else {
+                  return {
+                    ...note,
+                    width: newWidth,
+                    height: newHeight,
+                    positionY: newPositionY,
+                  };
+                }
+              }),
+            };
+          }
+        });
+
+        setSheets(newSheets);
+      }
     }
 
     window.addEventListener('mousemove', onMouseMove);
@@ -349,12 +514,15 @@ function Main() {
         <Sidebar selectedColor={selectedColor} onClick={handleColorClick} />
       </div>
       <div
+        ref={containerRef}
         onMouseMove={handleMouseMove}
         onClick={handleContainerClick}
         className=" relative flex-1"
       >
         {activeSheet?.stickyNotes.map((note) => (
           <StickyNote
+            onRightTopCornerMouseDown={handleRightTopCornerMouseDown}
+            onLeftTopCornerMouseDown={handleLeftTopCornerMouseDown}
             onLeftBorderMouseDown={handleStickyLeftBorderMouseDown}
             onRightBorderMouseDown={handleStickyRightBorderMouseDown}
             onBottomBorderMouseDown={handleStickyBottomBorderMouseDown}

@@ -19,6 +19,8 @@ interface Props {
   onBottomBorderMouseDown: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
   onLeftBorderMouseDown: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
   onRightBorderMouseDown: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
+  onLeftTopCornerMouseDown: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
+  onRightTopCornerMouseDown: (id: number, e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 const StickyNote: FC<Props> = ({
@@ -31,7 +33,11 @@ const StickyNote: FC<Props> = ({
   onKeyDown,
   onMouseUp,
   onBottomBorderMouseDown,
+  onLeftBorderMouseDown,
   onTopBorderMouseDown,
+  onLeftTopCornerMouseDown,
+  onRightBorderMouseDown,
+  onRightTopCornerMouseDown,
 }) => {
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onTitleChange({ text: e.target.value, noteId: item.id });
@@ -61,9 +67,23 @@ const StickyNote: FC<Props> = ({
 
   const handleBorderLeftMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
-    onBottomBorderMouseDown(item.id, e);
+    onLeftBorderMouseDown(item.id, e);
   };
 
+  const handleRightBorderMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    onRightBorderMouseDown(item.id, e);
+  };
+
+  const handleLeftTopCornerMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    onLeftTopCornerMouseDown(item.id, e);
+  };
+
+  const handleRightTopCornerMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    onRightTopCornerMouseDown(item.id, e);
+  };
   return (
     <div
       tabIndex={0}
@@ -89,18 +109,34 @@ const StickyNote: FC<Props> = ({
             className="absolute cursor-ns-resize top-0 h-2 w-full bg-gray-500"
             onMouseDown={handleBorderTopMouseDown}
           />
-          <div
-            onMouseDown={handleBorderLeftMouseDown}
-            className="absolute cursor-ns-resize bottom-0 h-2 w-full bg-gray-500"
-          />
-          <div className="absolute cursor-ew-resize left-0 h-full w-2 bg-gray-500" />
+
           <div
             onMouseDown={handleBorderBottomMouseDown}
+            className="absolute cursor-ns-resize bottom-0 h-2 w-full bg-gray-500"
+          />
+          <div
+            onMouseDown={handleBorderLeftMouseDown}
+            className="absolute cursor-ew-resize left-0 h-full w-2 bg-gray-500"
+          />
+          <div
+            onMouseDown={handleRightBorderMouseDown}
             className="absolute cursor-ew-resize right-0 h-full w-2 bg-gray-500"
           />
+
+          <div
+            onMouseDown={handleLeftTopCornerMouseDown}
+            className="absolute cursor-nw-resize left-0 top-0 w-2 h-2 z-50 bg-yellow-500"
+          />
+
+          <div
+            onMouseDown={handleRightTopCornerMouseDown}
+            className="absolute cursor-ne-resize right-0 top-0 w-2 h-2 z-50 bg-yellow-500"
+          />
+          <div className="absolute cursor-sw-resize bottom-0  w-2 h-2 z-50 bg-yellow-500" />
+          <div className="absolute cursor-se-resize right-0 bottom-0  w-2 h-2 z-50 bg-yellow-500" />
         </>
       )}
-      {selected && (
+      {selected ? (
         <input
           autoFocus
           value={item.title}
@@ -108,6 +144,8 @@ const StickyNote: FC<Props> = ({
           onChange={handleTextChange}
           type="text"
         />
+      ) : (
+        <label className="mx-auto">{item.title}</label>
       )}
     </div>
   );
